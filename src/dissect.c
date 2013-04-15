@@ -17,20 +17,20 @@
 static MalelfReport report;
 static MalelfBinary binary;
 
-void malelf_dissect_help()
+static void _malelf_dissect_help()
 {
         HELP("\n");
         HELP("This command display information about the ELF binary.\n");
-        HELP("Usage: malelf dissect [-h] -i <binary-file> -o <output-format> -f <output-file>\n");
+        HELP("Usage: malelf dissect [-h] -i <binary-file> -f <output-format> -o <output-file> [-e|-p|-s|-S]\n");
         HELP("        -h\tDissect Help\n");
         HELP("        -i\tBinary File\n");
         HELP("        -e\tDisplay ELF Header\n");
         HELP("        -s\tDisplay Section Header Table\n");
         HELP("        -p\tDisplay Program Header Table\n");
         HELP("        -S\tDisplay Symbol Table\n");
-        HELP("        -f\tOutput File.\n");
-        HELP("        -o\tOutput Format (xml or std). Default is stdout.\n");
-        HELP("Example: malelf dissect -i /bin/ls -o xml -f ./ls.xml\n");
+        HELP("        -f\tOutput Format (XML or Stdout). Default is Stdout.\n");
+        HELP("        -o\tOutput File.\n");
+        HELP("Example: malelf dissect -i /bin/ls -f xml -o /tmp/binary.xml\n");
         HELP("\n");
         exit(MALELF_SUCCESS);
 }
@@ -144,7 +144,7 @@ static _u32 _malelf_dissect_handle_options(MalelfDissect *obj, int option)
 
         switch (option) {
         case DISSECT_HELP:
-                malelf_dissect_help();
+                _malelf_dissect_help();
                 break;
         case DISSECT_FORMAT:
                 error |= _malelf_dissect_set_output_type(obj, optarg);
@@ -205,7 +205,7 @@ static _u32 _malelf_dissect_report(MalelfDissect *obj, _u8 output_type)
 }
 
 
-static _u32 malelf_dissect(MalelfDissect *obj)
+static _u32 _malelf_dissect(MalelfDissect *obj)
 {
         if (NULL == obj) {
                 return MALELF_ERROR;
@@ -227,7 +227,7 @@ static _u32 malelf_dissect(MalelfDissect *obj)
         return MALELF_SUCCESS;
 }
 
-static _u32 malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
+static _u32 _malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
 {
         _i32 option;
         _u32 error = MALELF_SUCCESS;
@@ -251,7 +251,7 @@ static _u32 malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
         }
 
         if (MALELF_SUCCESS == error ) {
-                error = malelf_dissect(obj);        
+                error = _malelf_dissect(obj);        
         }
      
         return error;
@@ -267,7 +267,7 @@ _u32 malelf_dissect_init(MalelfDissect *obj, int argc, char **argv)
         obj->flag_phdr = 0;
         obj->flag_stable = 0;
 
-        return malelf_dissect_options(obj, argc, argv);
+        return _malelf_dissect_options(obj, argc, argv);
 }
 
 

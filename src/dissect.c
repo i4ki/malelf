@@ -1,3 +1,29 @@
+/* 
+ * The malelf tool was written in pure C and developed using malelf library
+ * to analyze (static/dynamic) malwares and infect ELF binaries. Evil using 
+ * this tool is the responsibility of the programmer.
+ *
+ * Author: Tiago Natel de Moura <tiago4orion@gmail.com>
+ *
+ * Contributor: Daniel Ricardo dos Santos <danielricardo.santos@gmail.com>
+ *              Paulo Leonardo Benatto <benatto@gmail.com>
+ *
+ * Copyright 2012, 2013 by Tiago Natel de Moura. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 #include <stdio.h>
 #include <getopt.h>
 #include <unistd.h>
@@ -12,12 +38,10 @@
 #include "dissect.h"
 #include "util.h"
 
-#define HELP malelf_help
-
 static MalelfReport report;
 static MalelfBinary binary;
 
-static void _malelf_dissect_help()
+void malelf_dissect_help()
 {
         HELP("\n");
         HELP("This command display information about the ELF binary.\n");
@@ -144,7 +168,7 @@ static _u32 _malelf_dissect_handle_options(MalelfDissect *obj, int option)
 
         switch (option) {
         case DISSECT_HELP:
-                _malelf_dissect_help();
+                malelf_dissect_help();
                 break;
         case DISSECT_FORMAT:
                 error |= _malelf_dissect_set_output_type(obj, optarg);
@@ -167,7 +191,9 @@ static _u32 _malelf_dissect_handle_options(MalelfDissect *obj, int option)
         case DISSECT_FILE:
                 error |= _malelf_dissect_set_output_file(obj, optarg);
                 break;
+        case ':': printf("oi\n"); break;
         case DISSECT_UNKNOW:
+                malelf_dissect_help();
                 error |= 1;
                 break;
         }
@@ -199,7 +225,7 @@ static _u32 _malelf_dissect_report(MalelfDissect *obj, _u8 output_type)
                         malelf_report_shdr(&report, &binary);   
                 } 
         } else {
-                printf("TESTE\n");
+                printf("MALELF_OUTPUT_TEXT\n");
         }
         return MALELF_SUCCESS;
 }
@@ -212,15 +238,22 @@ static _u32 _malelf_dissect(MalelfDissect *obj)
         }
 
         if (NULL == obj->binary) {
+                HELP("[ERROR] No ELF binary file set to dissect.\n");
+                malelf_dissect_help();
                 return MALELF_ERROR;
         }
 
         if (MALELF_OUTPUT_XML == obj->output_type) {
+            if (NULL == obj->fname) {
+                HELP("[ERROR] No filename set to output.\n");
+                malelf_dissect_help();
+                return MALELF_ERROR;
+            }
             malelf_report_open(&report, obj->fname, MALELF_OUTPUT_XML);
             _malelf_dissect_report(obj, MALELF_OUTPUT_XML);
-            
         } else {
-            printf("TESTE\n");
+            /* Develop-me */
+            printf("MALELT_OUTPUT_TEXT\n");
             //_malelf_dissect_report(obj, MALELT_OUTPUT_TEXT); 
         }
 
@@ -229,9 +262,8 @@ static _u32 _malelf_dissect(MalelfDissect *obj)
 
 static _u32 _malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
 {
-        _i32 option;
-        _u32 error = MALELF_SUCCESS;
-     
+        _i32 option = 0;
+        _u32 error = MALELF_ERROR;
         int option_index = 0;
         static struct option long_options[] = {
                 {"help", 0, 0, DISSECT_HELP},
@@ -245,9 +277,14 @@ static _u32 _malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
                 {0, 0, 0, 0}
         };
 
-
-        while ((option = getopt_long (argc, argv, "ho:f:epsi:S", long_options, &option_index)) != -1) {
+        while ((option = getopt_long (argc, argv, "ho:f:epsi:S", 
+                                      long_options, &option_index)) != -1) {
                 error = _malelf_dissect_handle_options(obj, option);
+        }
+
+        if (-1 == option) {
+                malelf_dissect_help();
+                return MALELF_ERROR;
         }
 
         if (MALELF_SUCCESS == error ) {
@@ -285,9 +322,12 @@ _u32 malelf_dissect_finish(MalelfDissect *obj)
                 free(obj->binary);
         }
 
+        if (NULL != report.writer) {
+                malelf_report_close(&report);
+        }
+
         malelf_binary_close(&binary);
-        malelf_report_close(&report);
-        
+
         return MALELF_SUCCESS;
 }
 

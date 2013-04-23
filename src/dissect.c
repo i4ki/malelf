@@ -282,11 +282,6 @@ static _u32 _malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
                 error = _malelf_dissect_handle_options(obj, option);
         }
 
-        if (-1 == option) {
-                malelf_dissect_help();
-                return MALELF_ERROR;
-        }
-
         if (MALELF_SUCCESS == error ) {
                 error = _malelf_dissect(obj);        
         }

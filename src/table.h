@@ -3,12 +3,12 @@
  * to analyze (static/dynamic) malwares and infect ELF binaries. Evil using 
  * this tool is the responsibility of the programmer.
  *
- * Author: Tiago Natel de Moura <tiago4orion@gmail.com>
+ * Author: Paulo Leonardo Benatto <benatto@gmail.com>
  *
  * Contributor: Daniel Ricardo dos Santos <danielricardo.santos@gmail.com>
- *              Paulo Leonardo Benatto <benatto@gmail.com>
+ *              Tiago Natel de Moura <tiago4orion@gmail.com>
  *
- * Copyright 2012, 2013 by Tiago Natel de Moura. All Rights Reserved.
+ * Copyright 2012, 2013 by Paulo Leonardo Benatto. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@ typedef struct {
         unsigned int ncolumns;
         char *title;
         char **content;
+        char **headers;
         MalelfLine line;
 } MalelfTable;
 
@@ -68,7 +69,8 @@ _u32 malelf_table_init(MalelfTable *obj,
                        unsigned int nrows, 
                        unsigned int ncolumns,
                        char *title,
-                       char **content);
+                       char **content,
+                       char **headers);
 
 _u32 malelf_table_set_width(MalelfTable *obj, unsigned int width);
 

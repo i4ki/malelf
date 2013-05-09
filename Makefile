@@ -5,7 +5,7 @@ CFLAGS  := -ggdb -W -Wall  -Wextra -I/usr/local/include/ -I/usr/include/libxml2/
 
 BIN     := bin/malelf
 
-SRC := src/main.c src/dissect.c src/util.c
+SRC := src/main.c src/dissect.c src/util.c src/table.c
 OBJ := $(patsubst %.c,%.o,$(SRC))
 
 %.o: %.c

@@ -228,6 +228,9 @@ static unsigned int _malelf_table_get_column_middle(unsigned int colx,
                                                     unsigned int coly,
                                                     char *str)
 {
+        if (NULL == str) {
+                return -1;
+        }
         return ((colx + coly)/2) - (strlen(str)/2);
 }
 
@@ -293,11 +296,9 @@ static _u32 _malelf_table_print_headers(MalelfTable *obj)
                         col_end = col_length * count;
                         col_begin = col_begin + col_length;
                         pos++;
-                        if ((obj->ncolumns) > pos) {
-                                col_middle = _malelf_table_get_column_middle(col_end, 
-                                                                             col_begin, 
-                                                                             obj->headers[pos]);
-                        }
+                        col_middle = _malelf_table_get_column_middle(col_end, 
+                                                                     col_begin, 
+                                                                     obj->headers[pos]);
                         count++;
                         continue; 
                 }
@@ -321,7 +322,7 @@ static _u32 _malelf_table_print_content(MalelfTable *obj)
         unsigned int i;
         unsigned int col_length;
         unsigned int col_middle;
-        unsigned int pos = 0;
+        static unsigned int pos = 0;
         unsigned int col_begin = 0;
         unsigned int col_end = 0;
         static unsigned int count = 2;
@@ -335,7 +336,9 @@ static _u32 _malelf_table_print_content(MalelfTable *obj)
         _malelf_table_get_column_length(obj, &col_length);
         col_end = col_length;
         partitions = col_length;
-        col_middle = _malelf_table_get_column_middle(col_begin, col_end, obj->content[pos]);
+        col_middle = _malelf_table_get_column_middle(col_begin, 
+                                                     col_end, 
+                                                     obj->content[pos]);
 
         _malelf_table_print_char(PIPE);
         for (i = 1; i < obj->width; i++) {
@@ -345,9 +348,9 @@ static _u32 _malelf_table_print_content(MalelfTable *obj)
                         col_end = col_length * count;
                         col_begin = col_begin + col_length;
                         pos++;
-                        if ((obj->nrows * obj->ncolumns) > pos) {
-                                col_middle = _malelf_table_get_column_middle(col_end, col_begin, obj->content[pos]);
-                         }
+                        col_middle = _malelf_table_get_column_middle(col_end, 
+                                                                     col_begin, 
+                                                                     obj->content[pos]);
                          count++;
                          continue; 
                 }
@@ -363,9 +366,9 @@ static _u32 _malelf_table_print_content(MalelfTable *obj)
         count = 2;
         col_begin = 0;
         col_end = partitions = col_length;
-        if ((obj->nrows * obj->ncolumns) > pos) {
-                col_middle = _malelf_table_get_column_middle(col_end, col_begin, obj->content[pos]);
-        }
+        col_middle = _malelf_table_get_column_middle(col_end, 
+                                                     col_begin, 
+                                                     obj->content[pos]);
 
         return MALELF_SUCCESS;
 } 
@@ -400,13 +403,14 @@ _u32 malelf_table_ehdr(MalelfTable *obj)
 {
 
         MalelfTable table;
-        char *headers[] = {"Member", "Description", "Value"};
+        char *headers[] = {"Member", "Description", "Value", NULL};
 
-        char *content[] = {"Structure Member", "Description", "Value",
-                           "Structure Member", "Description", "Value",
-                           "Structure Member", "Description", "Value"};
+        char *content[] = {"Member1", "Description2", "Value3",
+                           "Member4", "Description5", "Value6",
+                           "Member7", "Description8", "Value9", 
+                           NULL};
 
-        malelf_table_init(&table, 81, 3, 3, "ELF Header", content, headers);
+        malelf_table_init(&table, 100, 10, 5, "ELF Header", content, headers);
         malelf_table_print(&table);
 
         return MALELF_SUCCESS; 

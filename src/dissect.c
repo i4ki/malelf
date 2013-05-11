@@ -1,6 +1,6 @@
-/* 
+/*
  * The malelf tool was written in pure C and developed using malelf library
- * to analyze (static/dynamic) malwares and infect ELF binaries. Evil using 
+ * to analyze (static/dynamic) malwares and infect ELF binaries. Evil using
  * this tool is the responsibility of the programmer.
  *
  * Author: Tiago Natel de Moura <tiago4orion@gmail.com>
@@ -73,7 +73,7 @@ static _u32 _malelf_dissect_set_output_type(MalelfDissect *obj, char *type)
         if (0 == strncmp(type, "xml", 3)) {
                 obj->output_type = MALELF_OUTPUT_XML;
         }
-        
+
         if (0 == strncmp(type, "std", 3)) {
                 obj->output_type = MALELF_OUTPUT_TEXT;
         }
@@ -86,7 +86,7 @@ static _u32 _malelf_dissect_set_flag_ehdr(MalelfDissect *obj)
         if (NULL == obj) {
                 return MALELF_ERROR;
         }
-        
+
         obj->flag_ehdr = 1;
 
         return MALELF_SUCCESS;
@@ -97,7 +97,7 @@ static _u32 _malelf_dissect_set_flag_phdr(MalelfDissect *obj)
         if (NULL == obj) {
                 return MALELF_ERROR;
         }
-        
+
         obj->flag_phdr = 1;
 
         return MALELF_SUCCESS;
@@ -108,7 +108,7 @@ static _u32 _malelf_dissect_set_flag_shdr(MalelfDissect *obj)
         if (NULL == obj) {
                 return MALELF_ERROR;
         }
-        
+
         obj->flag_shdr = 1;
 
         return MALELF_SUCCESS;
@@ -119,7 +119,7 @@ static _u32 _malelf_dissect_set_flag_stable(MalelfDissect *obj)
         if (NULL == obj) {
                 return MALELF_ERROR;
         }
-        
+
         obj->flag_stable = 1;
 
         return MALELF_SUCCESS;
@@ -135,7 +135,7 @@ static _u32 _malelf_dissect_set_output_file(MalelfDissect *obj, char *fname)
                 return MALELF_ERROR;
         }
 
-        obj->fname = strdup(fname); 
+        obj->fname = strdup(fname);
         if (NULL == obj->fname) {
                 return MALELF_ERROR;
         }
@@ -152,7 +152,7 @@ static _u32 _malelf_dissect_set_binary_file(MalelfDissect *obj, char *fname)
         if (NULL == fname) {
                 return MALELF_ERROR;
         }
-        
+
         obj->binary = strdup(fname);
         malelf_binary_init(&binary);
     	if (MALELF_SUCCESS != malelf_binary_open(fname, &binary)) {
@@ -191,13 +191,15 @@ static _u32 _malelf_dissect_handle_options(MalelfDissect *obj, int option)
         case DISSECT_FILE:
                 error |= _malelf_dissect_set_output_file(obj, optarg);
                 break;
-        case ':': printf("oi\n"); break;
+        case ':':
+                printf("Unknown option character '%s'.\n", optarg);
+                break;
         case DISSECT_UNKNOW:
                 malelf_dissect_help();
                 error |= 1;
                 break;
         }
- 
+
         return error;
 }
 
@@ -209,23 +211,23 @@ static _u32 _malelf_dissect_report(MalelfDissect *obj, _u8 output_type)
 
         if (output_type == MALELF_OUTPUT_XML) {
                 if (obj->flag_ehdr) {
-                        malelf_report_ehdr(&report, &binary);   
+                        malelf_report_ehdr(&report, &binary);
                 }
                 if (obj->flag_phdr) {
-                        malelf_report_phdr(&report, &binary);   
+                        malelf_report_phdr(&report, &binary);
                 }
                 if (obj->flag_shdr) {
-                        malelf_report_shdr(&report, &binary);   
+                        malelf_report_shdr(&report, &binary);
                 }
                 if ((!obj->flag_ehdr) &&
                     (!obj->flag_shdr) &&
                     (!obj->flag_phdr)) {
-                        malelf_report_ehdr(&report, &binary);   
-                        malelf_report_phdr(&report, &binary);   
-                        malelf_report_shdr(&report, &binary);   
-                } 
+                        malelf_report_ehdr(&report, &binary);
+                        malelf_report_phdr(&report, &binary);
+                        malelf_report_shdr(&report, &binary);
+                }
         } else {
-                printf("MALELF_OUTPUT_TEXT\n");
+                printf("Option -f std isn't implemented yet. Use -f xml -o file.xml\n");
         }
         return MALELF_SUCCESS;
 }
@@ -252,9 +254,8 @@ static _u32 _malelf_dissect(MalelfDissect *obj)
             malelf_report_open(&report, obj->fname, MALELF_OUTPUT_XML);
             _malelf_dissect_report(obj, MALELF_OUTPUT_XML);
         } else {
-            /* Develop-me */
-            printf("MALELT_OUTPUT_TEXT\n");
-            //_malelf_dissect_report(obj, MALELT_OUTPUT_TEXT); 
+                printf("Option -f std isn't implemented yet. Use -f xml -o file.xml\n");
+                return MALELF_ERROR;
         }
 
         return MALELF_SUCCESS;
@@ -277,15 +278,15 @@ static _u32 _malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
                 {0, 0, 0, 0}
         };
 
-        while ((option = getopt_long (argc, argv, "ho:f:epsi:S", 
+        while ((option = getopt_long (argc, argv, "ho:f:epsi:S",
                                       long_options, &option_index)) != -1) {
                 error = _malelf_dissect_handle_options(obj, option);
         }
 
         if (MALELF_SUCCESS == error ) {
-                error = _malelf_dissect(obj);        
+                error = _malelf_dissect(obj);
         }
-     
+
         return error;
 }
 
@@ -325,4 +326,3 @@ _u32 malelf_dissect_finish(MalelfDissect *obj)
 
         return MALELF_SUCCESS;
 }
-

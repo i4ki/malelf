@@ -33,6 +33,7 @@
 #include <malelf/report.h>
 #include <malelf/types.h>
 #include <malelf/error.h>
+#include <malelf/table.h>
 
 /* Malelf */
 #include "dissect.h"
@@ -227,6 +228,9 @@ static _u32 _malelf_dissect_report(MalelfDissect *obj, _u8 output_type)
                         malelf_report_shdr(&report, &binary);
                 }
         } else {
+                /*MalelfEhdr ehdr;
+                malelf_binary_get_ehdr(&binary, &ehdr);
+                malelf_table_ehdr(&ehdr);*/
                 printf("Option -f std isn't implemented yet. Use -f xml -o file.xml\n");
         }
         return MALELF_SUCCESS;
@@ -254,6 +258,7 @@ static _u32 _malelf_dissect(MalelfDissect *obj)
             malelf_report_open(&report, obj->fname, MALELF_OUTPUT_XML);
             _malelf_dissect_report(obj, MALELF_OUTPUT_XML);
         } else {
+                _malelf_dissect_report(obj, MALELF_OUTPUT_TEXT);
                 printf("Option -f std isn't implemented yet. Use -f xml -o file.xml\n");
                 return MALELF_ERROR;
         }

@@ -30,6 +30,7 @@
 #include <string.h>
 #include <stdarg.h>
 
+#define HTOA(dest, src) sprintf(dest, "0x%08x", src)
 
 void malelf_help(const char *format, ...)
 {

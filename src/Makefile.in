@@ -62,8 +62,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_malelf_OBJECTS = main.$(OBJEXT) dissect.$(OBJEXT) util.$(OBJEXT) \
-	table.$(OBJEXT)
+am_malelf_OBJECTS = main.$(OBJEXT) dissect.$(OBJEXT) util.$(OBJEXT)
 malelf_OBJECTS = $(am_malelf_OBJECTS)
 am__DEPENDENCIES_1 =
 malelf_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -189,8 +188,7 @@ AM_CFLAGS = -ggdb -O2 $(M32_CFLAGS) \
 
 malelf_SOURCES = main.c \
 			dissect.c \
-			util.c \
-			table.c
+			util.c
 
 malelf_LDADD = -lmalelf $(LIBXML2_CFLAGS)
 all: all-am
@@ -279,7 +277,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dissect.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/table.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@
 
 .c.o:

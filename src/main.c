@@ -31,7 +31,6 @@
 
 #include "dissect.h"
 #include "util.h"
-#include "table.h"
 
 #define DISSECT "dissect"
 
@@ -60,11 +59,8 @@ int main(int argc, char **argv)
 {
         MalelfDissect dissect;
 
-        MalelfTable table;
-        malelf_table_ehdr(&table);
-
         if (argc == 1) {
-//                _malelf_help();
+                _malelf_help();
                 return -1;
         }
  

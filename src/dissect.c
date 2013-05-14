@@ -42,7 +42,7 @@
 static MalelfReport report;
 static MalelfBinary binary;
 
-void malelf_dissect_help()
+void malelf_dissect_help(void)
 {
         HELP("\n");
         HELP("This command display information about the ELF binary.\n");
@@ -204,10 +204,11 @@ static _u32 _malelf_dissect_handle_options(MalelfDissect *obj, int option)
         return error;
 }
 
-static _u32 _malelf_dissect_table_ehdr()
+static _u32 _malelf_dissect_table_ehdr(MalelfDissect *obj)
 {
         MalelfTable table;
         MalelfEhdr ehdr;
+        _u32 value;
 
         char *headers[] = {"Structure Member", "Description", "Value", NULL};
 
@@ -216,6 +217,10 @@ static _u32 _malelf_dissect_table_ehdr()
         malelf_table_set_headers(&table, headers);
 
         malelf_binary_get_ehdr(&binary, &ehdr);
+
+        if (NULL != obj->fname) {
+                malelf_table_set_file(&table, obj->fname);
+        }
 
         /* 1 - Row */
         MalelfEhdrType me_type;
@@ -236,82 +241,70 @@ static _u32 _malelf_dissect_table_ehdr()
                                MALELF_TABLE_INT);
 
         /* 3 - Row */
-        _u32 entry;
-        malelf_ehdr_get_entry(&ehdr, &entry);
+        malelf_ehdr_get_entry(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_entry", MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)"Entry Point", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, (void*)entry, MALELF_TABLE_HEX);
+        malelf_table_add_value(&table, (void*)value, MALELF_TABLE_HEX);
 
         /* 4 - Row */
-        _u32 phoff;
-        malelf_ehdr_get_phoff(&ehdr, &phoff);
+        malelf_ehdr_get_phoff(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_phoff", MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)"PHT Offset", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, (void*)phoff, MALELF_TABLE_HEX);
+        malelf_table_add_value(&table, (void*)value, MALELF_TABLE_HEX);
 
         /* 5 - Row */
-        _u32 shoff;
-        malelf_ehdr_get_shoff(&ehdr, &shoff);
+        malelf_ehdr_get_shoff(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_shoff", MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)"SHT Offset", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, (void*)shoff, MALELF_TABLE_HEX);
+        malelf_table_add_value(&table, (void*)value, MALELF_TABLE_HEX);
 
         /* 6 - Row */
-        _u32 ehsize;
-        malelf_ehdr_get_ehsize(&ehdr, &ehsize);
+        malelf_ehdr_get_ehsize(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_ehsize", MALELF_TABLE_STR);
         malelf_table_add_value(&table, 
                                (void*)"ELF Header Size", 
                                MALELF_TABLE_STR);
-        malelf_table_add_value(&table, (void*)ehsize, MALELF_TABLE_INT);
+        malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         /* 7 - Row */
-        _u32 phentsize;
-        malelf_ehdr_get_phentsize(&ehdr, &phentsize);
+        malelf_ehdr_get_phentsize(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_phentsize", MALELF_TABLE_STR);
         malelf_table_add_value(&table, 
                                (void*)"Size of PHT entries", 
                                MALELF_TABLE_STR);
-        malelf_table_add_value(&table, (void*)phentsize, MALELF_TABLE_INT);
+        malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         /* 8 - Row */
-        _u32 phnum;
-        malelf_ehdr_get_phnum(&ehdr, &phnum);
+        malelf_ehdr_get_phnum(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_phnum", MALELF_TABLE_STR);
         malelf_table_add_value(&table, 
                                (void*)"Number of PHT entries", 
                                MALELF_TABLE_STR);
-        malelf_table_add_value(&table, (void*)phnum, MALELF_TABLE_INT);
+        malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         /* 9 - Row */
-        _u32 shentsize;
-        malelf_ehdr_get_shentsize(&ehdr, &shentsize);
+        malelf_ehdr_get_shentsize(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_shentsize", MALELF_TABLE_STR);
         malelf_table_add_value(&table, 
                                (void*)"Size of one entry in SHT", 
                                MALELF_TABLE_STR);
-        malelf_table_add_value(&table, (void*)shentsize, MALELF_TABLE_INT);
+        malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         /* 10 - Row */
-        _u32 shnum;
-        malelf_ehdr_get_shnum(&ehdr, &shnum);
+        malelf_ehdr_get_shnum(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_shnum", MALELF_TABLE_STR);
         malelf_table_add_value(&table, 
                                (void*)"Number of sections", 
                                MALELF_TABLE_STR);
-        malelf_table_add_value(&table, (void*)shnum, MALELF_TABLE_INT);
+        malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         /* 11 - Row */
-        _u32 shstrndx;
-        malelf_ehdr_get_shstrndx(&ehdr, &shstrndx);
+        malelf_ehdr_get_shstrndx(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_shstrndx", MALELF_TABLE_STR);
         malelf_table_add_value(&table, 
                                (void*)"SHT symbol index", 
                                MALELF_TABLE_STR);
-        malelf_table_add_value(&table, (void*)shstrndx, MALELF_TABLE_INT);
-
-
-
+        malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         malelf_table_print(&table);
         malelf_table_finish(&table);
@@ -348,11 +341,17 @@ static _u32 _malelf_dissect_report(MalelfDissect *obj, _u8 output_type)
                         malelf_report_shdr(&report, &binary);
                 }
         } else {
-                /*MalelfEhdr ehdr;
-                malelf_binary_get_ehdr(&binary, &ehdr);
-                malelf_table_ehdr(&ehdr);*/
-                _malelf_dissect_table_ehdr();
-                printf("Option -f std isn't implemented yet. Use -f xml -o file.xml\n");
+                if (obj->flag_ehdr) {
+                        _malelf_dissect_table_ehdr(obj);
+                }
+                
+                if ((!obj->flag_ehdr) &&
+                    (!obj->flag_shdr) &&
+                    (!obj->flag_phdr)) {
+                        _malelf_dissect_table_ehdr(obj);
+                        //_malelf_dissect_table_phdr(obj);
+                        //_malelf_dissect_table_shdr(obj);
+                }
         }
         return MALELF_SUCCESS;
 }
@@ -380,7 +379,6 @@ static _u32 _malelf_dissect(MalelfDissect *obj)
             _malelf_dissect_report(obj, MALELF_OUTPUT_XML);
         } else {
                 _malelf_dissect_report(obj, MALELF_OUTPUT_TEXT);
-                printf("Option -f std isn't implemented yet. Use -f xml -o file.xml\n");
                 return MALELF_ERROR;
         }
 
@@ -403,6 +401,11 @@ static _u32 _malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
                 {"symbol-table", 0, 0, DISSECT_STABLE},
                 {0, 0, 0, 0}
         };
+
+        if (2 == argc) {
+                malelf_dissect_help();
+                return MALELF_ERROR;
+        }
 
         while ((option = getopt_long (argc, argv, "ho:f:epsi:S",
                                       long_options, &option_index)) != -1) {

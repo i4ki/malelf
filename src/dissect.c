@@ -320,6 +320,8 @@ static _u32 _malelf_dissect_table_shdr()
         _u32 shnum;
         unsigned int i;
         MalelfShdrType ms_type;
+        _u32 shstrndx;
+        char sec_name[50] = {0};
 
         char *headers[] = {"N", "Addr", "Offset", "Name", "Type", NULL};
 
@@ -331,6 +333,7 @@ static _u32 _malelf_dissect_table_shdr()
 
         malelf_binary_get_ehdr(&binary, &ehdr);
         malelf_ehdr_get_shnum(&ehdr, &shnum);
+        malelf_ehdr_get_shstrndx(&ehdr, &shstrndx);
         malelf_binary_get_shdr(&binary, &shdr);
         sections = shdr.uhdr.h32;
 
@@ -347,9 +350,20 @@ static _u32 _malelf_dissect_table_shdr()
                 malelf_table_add_value(&table, 
                                        (void *)ms_type.name, 
                                        MALELF_TABLE_STR);
-                malelf_table_add_value(&table, 
-                                       (void *)" ", 
-                                       MALELF_TABLE_STR);
+                if (s->sh_type != SHT_NULL && shstrndx != 0x00) {
+                        strncpy(sec_name, 
+                                (char*) binary.mem + sections[shstrndx].sh_offset + sections[i].sh_name, 
+                                sizeof(sec_name));
+                        malelf_table_add_value(&table, 
+                                               (void *)sec_name,
+                                               MALELF_TABLE_STR);
+                } else {
+                        malelf_table_add_value(&table, 
+                                               (void *)" ",
+                                               MALELF_TABLE_STR);
+
+                } 
+                sec_name[0] = '\0';
         }
 
         malelf_table_print(&table);

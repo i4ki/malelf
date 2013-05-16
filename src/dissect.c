@@ -28,6 +28,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <string.h>
+#include <elf.h>
 
 /* Libmalelf */
 #include <malelf/report.h>
@@ -204,7 +205,7 @@ static _u32 _malelf_dissect_handle_options(MalelfDissect *obj, int option)
         return error;
 }
 
-static _u32 _malelf_dissect_table_ehdr(MalelfDissect *obj)
+static _u32 _malelf_dissect_table_ehdr()
 {
         MalelfTable table;
         MalelfEhdr ehdr;
@@ -212,15 +213,13 @@ static _u32 _malelf_dissect_table_ehdr(MalelfDissect *obj)
 
         char *headers[] = {"Structure Member", "Description", "Value", NULL};
 
-        malelf_table_init(&table, 78, 11, 3);
+        if (MALELF_SUCCESS != malelf_table_init(&table, 78, 11, 3)) {
+                return MALELF_ERROR;
+        }
         malelf_table_set_title(&table, "ELF Header");
         malelf_table_set_headers(&table, headers);
 
         malelf_binary_get_ehdr(&binary, &ehdr);
-
-        if (NULL != obj->fname) {
-                malelf_table_set_file(&table, obj->fname);
-        }
 
         /* 1 - Row */
         MalelfEhdrType me_type;
@@ -312,10 +311,75 @@ static _u32 _malelf_dissect_table_ehdr(MalelfDissect *obj)
         return MALELF_SUCCESS;
 }
 
-/* 
-_u32 malelf_dissect_table_shdr()
-_u32 malelf_dissect_table_phdr()
-*/
+static _u32 _malelf_dissect_table_shdr()
+{
+        MalelfTable table;
+        MalelfShdr shdr;
+        MalelfEhdr ehdr;
+        Elf32_Shdr *sections;
+        _u32 shnum;
+        unsigned int i;
+        MalelfShdrType ms_type;
+
+        char *headers[] = {"N", "Addr", "Offset", "Name", "Type", NULL};
+
+        if (MALELF_SUCCESS != malelf_table_init(&table, 75, 28, 5)) {
+                return MALELF_ERROR;
+        }
+        malelf_table_set_title(&table, "Section Header Table (SHT)");
+        malelf_table_set_headers(&table, headers);
+
+        malelf_binary_get_ehdr(&binary, &ehdr);
+        malelf_ehdr_get_shnum(&ehdr, &shnum);
+        malelf_binary_get_shdr(&binary, &shdr);
+        sections = shdr.uhdr.h32;
+
+        for (i = 0; i < shnum; i++) {
+                Elf32_Shdr *s = &sections[i];
+                malelf_table_add_value(&table, (void *)i, MALELF_TABLE_INT);
+                malelf_table_add_value(&table, 
+                                       (void *)s->sh_addr, 
+                                       MALELF_TABLE_HEX);
+                malelf_table_add_value(&table, 
+                                       (void *)s->sh_offset, 
+                                       MALELF_TABLE_INT);
+                malelf_shdr_get_mstype(&shdr, &ms_type, i);
+                malelf_table_add_value(&table, 
+                                       (void *)ms_type.name, 
+                                       MALELF_TABLE_STR);
+                malelf_table_add_value(&table, 
+                                       (void *)" ", 
+                                       MALELF_TABLE_STR);
+        }
+
+        malelf_table_print(&table);
+        malelf_table_finish(&table);
+
+        return MALELF_SUCCESS;
+
+}
+
+static _u32 _malelf_dissect_table_phdr()
+{
+        MalelfTable table;
+        MalelfPhdr phdr;
+        //_u32 value;
+
+        char *headers[] = {"N", "Offset", NULL};
+
+        if (MALELF_SUCCESS != malelf_table_init(&table, 60, 9, 2)) {
+                return MALELF_ERROR;
+        }
+        malelf_table_set_title(&table, "Program Header Table (PHT)");
+        malelf_table_set_headers(&table, headers);
+
+        malelf_binary_get_phdr(&binary, &phdr);
+
+        malelf_table_print(&table);
+        malelf_table_finish(&table);
+
+        return MALELF_SUCCESS;
+}
 
 static _u32 _malelf_dissect_report(MalelfDissect *obj, _u8 output_type)
 {
@@ -342,15 +406,23 @@ static _u32 _malelf_dissect_report(MalelfDissect *obj, _u8 output_type)
                 }
         } else {
                 if (obj->flag_ehdr) {
-                        _malelf_dissect_table_ehdr(obj);
+                        _malelf_dissect_table_ehdr();
                 }
                 
+                if (obj->flag_phdr) {
+                        _malelf_dissect_table_phdr();
+                }
+
+                if (obj->flag_shdr) {
+                        _malelf_dissect_table_shdr();
+                }
+
                 if ((!obj->flag_ehdr) &&
                     (!obj->flag_shdr) &&
                     (!obj->flag_phdr)) {
-                        _malelf_dissect_table_ehdr(obj);
-                        //_malelf_dissect_table_phdr(obj);
-                        //_malelf_dissect_table_shdr(obj);
+                        _malelf_dissect_table_ehdr();
+                        _malelf_dissect_table_shdr();
+                        _malelf_dissect_table_phdr();
                 }
         }
         return MALELF_SUCCESS;

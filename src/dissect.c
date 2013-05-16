@@ -377,7 +377,10 @@ static _u32 _malelf_dissect_table_phdr()
 {
         MalelfTable table;
         MalelfPhdr phdr;
-        //_u32 value;
+        MalelfEhdr ehdr;
+        _u32 phnum;
+        _u32 value;
+        unsigned int i;
 
         char *headers[] = {"N", "Offset", NULL};
 
@@ -388,6 +391,14 @@ static _u32 _malelf_dissect_table_phdr()
         malelf_table_set_headers(&table, headers);
 
         malelf_binary_get_phdr(&binary, &phdr);
+        malelf_binary_get_ehdr(&binary, &ehdr);
+        malelf_ehdr_get_phnum(&ehdr, &phnum);
+
+        for (i = 0; i < phnum; i++) {
+                malelf_table_add_value(&table, (void *)i, MALELF_TABLE_INT);
+                malelf_phdr_get_offset(&phdr, &value, i);
+                malelf_table_add_value(&table, (void *)value, MALELF_TABLE_HEX);
+        }
 
         malelf_table_print(&table);
         malelf_table_finish(&table);

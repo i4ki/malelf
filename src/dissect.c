@@ -47,15 +47,15 @@ void malelf_dissect_help(void)
 {
         HELP("\n");
         HELP("This command display information about the ELF binary.\n");
-        HELP("Usage: malelf dissect [-h] -i <binary-file> -f <output-format> -o <output-file> [-e|-p|-s|-S]\n");
+        HELP("Usage: malelf dissect <options>\n");
         HELP("         -h, --help    \tDissect Help\n");
-        HELP("         -i, --binary  \tBinary File\n");
+        HELP("         -i, --input   \tBinary File\n");
         HELP("         -e, --ehdr    \tDisplay ELF Header\n");
         HELP("         -s, --shdr    \tDisplay Section Header Table\n");
         HELP("         -p, --phdr    \tDisplay Program Header Table\n");
         HELP("         -S, --stable  \tDisplay Symbol Table\n");
         HELP("         -f, --format  \tOutput Format (XML or Stdout). Default is Stdout.\n");
-        HELP("         -o, --file    \tOutput File.\n");
+        HELP("         -o, --output  \tOutput File.\n");
         HELP("Example: malelf dissect -i /bin/ls -f xml -o /tmp/binary.xml\n");
         HELP("\n");
         exit(MALELF_SUCCESS);
@@ -489,13 +489,13 @@ static _u32 _malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
         int option_index = 0;
         static struct option long_options[] = {
                 {"help", 0, 0, DISSECT_HELP},
-                {"binary", 1, 0, DISSECT_BINARY},
+                {"input", 1, 0, DISSECT_BINARY},
                 {"format", 1, 0, DISSECT_FORMAT},
-                {"file", 1, 0, DISSECT_FILE},
+                {"output", 1, 0, DISSECT_FILE},
                 {"phdr", 0, 0, DISSECT_PHDR},
                 {"shdr", 0, 0, DISSECT_SHDR},
                 {"ehdr", 0, 0, DISSECT_EHDR},
-                {"symbol-table", 0, 0, DISSECT_STABLE},
+                {"stable", 0, 0, DISSECT_STABLE},
                 {0, 0, 0, 0}
         };
 

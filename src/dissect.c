@@ -222,7 +222,7 @@ static _u32 _malelf_dissect_table_ehdr()
         malelf_binary_get_ehdr(&binary, &ehdr);
 
         /* 1 - Row */
-        MalelfEhdrType me_type;
+        MalelfEhdrTable me_type;
         malelf_ehdr_get_type(&ehdr, &me_type);
         malelf_table_add_value(&table, (void*)"e_type", MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)"Object Type", MALELF_TABLE_STR);
@@ -231,7 +231,7 @@ static _u32 _malelf_dissect_table_ehdr()
                                MALELF_TABLE_STR);
 
         /* 2 - Row */
-        MalelfEhdrVersion me_version;
+        MalelfEhdrTable me_version;
         malelf_ehdr_get_version(&ehdr, &me_version);
         malelf_table_add_value(&table, (void*)"e_version", MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)"Version", MALELF_TABLE_STR);

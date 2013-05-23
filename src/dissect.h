@@ -1,6 +1,6 @@
-/* 
+/*
  * The malelf tool was written in pure C and developed using malelf library
- * to analyze (static/dynamic) malwares and infect ELF binaries. Evil using 
+ * to analyze (static/dynamic) malwares and infect ELF binaries. Evil using
  * this tool is the responsibility of the programmer.
  *
  * Author: Tiago Natel de Moura <tiago4orion@gmail.com>
@@ -40,7 +40,7 @@
 #define DISSECT_BINARY 'i'
 #define DISSECT_FILE   'o'
 #define DISSECT_STABLE 'S'
-#define DISSECT_UNKNOW '?'
+#define DISSECT_UNKNOWN '?'
 
 /* Store info about dissect */
 typedef struct  {

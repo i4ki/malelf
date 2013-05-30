@@ -36,6 +36,8 @@
 #define SHELLCODE_HELP   'h'
 #define SHELLCODE_BINARY 'i'
 #define SHELLCODE_FILE   'o'
+#define SHELLCODE_MAGIC_BYTES 'm'
+#define SHELLCODE_ORIGINAL_ENTRY 'e'
 #define SHELLCODE_UNKNOWN '?'
 
 #define SHELLCODE_FMT_UNKNOWN (0x00)
@@ -48,6 +50,7 @@ typedef struct {
         char *ofname;
         _u8 format;
         union malelf_dword magic_bytes;
+        _u32 original_entry;
 } ShellcodeOptions;
 
 _u32 malelf_shellcode_init(int argc, char **argv);

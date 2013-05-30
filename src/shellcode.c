@@ -29,6 +29,9 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <assert.h>
 
@@ -53,6 +56,7 @@ void malelf_shellcode_help(void)
   HELP("         -i, --input   \tShellcode flat binary input\n");
   HELP("         -f, --format  \tOutput Format (C-string or malelf). Default is malelf.\n");
   HELP("         -o, --output  \tOutput Shellcode file.\n");
+  HELP("         -e, --return-entry-point\tEntry point to host.\n");
   HELP("Example: malelf shellcode -i ./malware.bin -f malelf -o ./malware_ready.bin\n");
   HELP("\n");
   exit(MALELF_SUCCESS);
@@ -78,11 +82,12 @@ _u32 _malelf_shellcode_set_output_format(char *format)
         return error;
 }
 
-_u32 _malelf_shellcode(ShellcodeOptions *config)
+_u32 _malelf_shellcode_flat(ShellcodeOptions *config)
 {
         MalelfBinary input_shellcode;
         MalelfBinary output_shellcode;
         _u32 error;
+        _u32 magic_offset = 0;
 
         assert(config->ifname != NULL &&
                config->ofname != NULL &&
@@ -94,11 +99,91 @@ _u32 _malelf_shellcode(ShellcodeOptions *config)
         input_shellcode.class = MALELF_FLATUNKNOWN;
         output_shellcode.class = MALELF_FLATUNKNOWN;
 
-        error = malelf_binary_open(config->ifname, &input_shellcode);
+        error = malelf_binary_open(&input_shellcode, config->ifname);
 
         if (MALELF_SUCCESS != error) {
                 MALELF_PERROR(error);
                 return error;
+        }
+
+        output_shellcode.fname = config->ofname;
+
+        error = malelf_shellcode_create_flat(&output_shellcode,
+                                             &input_shellcode,
+                                             &magic_offset,
+                                             0,
+                                             0);
+
+        if (MALELF_SUCCESS != error) {
+                LOG_ERROR("Failed to create FLAT shellcode.");
+                return error;
+        }
+
+        LOG_SUCCESS("Shellcode generated successfully.\n");
+        LOG_SUCCESS("Output: %s\n", output_shellcode.fname);
+        LOG_SUCCESS("Infect binaries with: \n");
+        LOG_SUCCESS("\t\tmalelf infect -t 0 -p \"%s\" -f \"%u\" "
+                    "-i <binary> -o "
+                    "<output-binary>\n\n", output_shellcode.fname,
+                    magic_offset);
+
+        return MALELF_SUCCESS;
+}
+
+_u32 _malelf_shellcode_cstring(ShellcodeOptions *config)
+{
+        FILE *ofd = NULL;
+        FILE *ifd = NULL;
+        _u32 error;
+        struct stat st_info;
+
+        assert (NULL != config->ifname);
+        assert (SHELLCODE_FMT_CSTRING == config->format);
+
+        if (NULL == config->ofname) {
+                ofd = stdout;
+        } else {
+                ofd = fopen(config->ofname, "w+");
+                if (NULL == ofd) {
+                        return errno;
+                }
+        }
+
+        ifd = fopen(config->ifname, "r");
+        if (NULL == ifd) {
+                goto cstring_error;
+        }
+
+        if (-1 == stat(config->ifname, &st_info)) {
+                goto cstring_error;
+        }
+
+        error = malelf_shellcode_create_c(ofd,
+                                          st_info.st_size,
+                                          ifd,
+                                          0);
+
+        goto cstring_out;
+
+cstring_error:
+        error = errno;
+cstring_out:
+        fclose(ifd);
+        fclose(ofd);
+        return error;
+}
+
+_u32 _malelf_shellcode(ShellcodeOptions *config)
+{
+        switch (config->format) {
+        case SHELLCODE_FMT_DEFAULT:
+                return _malelf_shellcode_flat(config);
+                break;
+        case SHELLCODE_FMT_CSTRING:
+                return _malelf_shellcode_cstring(config);
+                break;
+        default:
+                return _malelf_shellcode_flat(config);
         }
 
         return MALELF_SUCCESS;
@@ -121,6 +206,8 @@ static _u32 _malelf_shellcode_handle_options(int option)
         case SHELLCODE_FILE:
                 sh_config.ofname = optarg;
                 break;
+        case SHELLCODE_MAGIC_BYTES:
+                sh_config.magic_bytes.long_val = atoi(optarg);
         case ':':
                 printf("Unknown option character '%s'.\n", optarg);
                 break;
@@ -130,9 +217,20 @@ static _u32 _malelf_shellcode_handle_options(int option)
                 break;
         }
 
-        if (sh_config.ifname == NULL ||
-            sh_config.ofname == NULL ||
-            sh_config.format == SHELLCODE_FMT_UNKNOWN) {
+        if (sh_config.format == SHELLCODE_FMT_UNKNOWN) {
+                return MALELF_ERROR;
+        }
+
+        if (sh_config.format == SHELLCODE_FMT_DEFAULT) {
+                if (sh_config.ifname == NULL ||
+                    sh_config.ofname == NULL) {
+                        error = MALELF_ERROR;
+                }
+        } else if (sh_config.format == SHELLCODE_FMT_CSTRING) {
+                if (sh_config.ifname == NULL) {
+                        error = MALELF_ERROR;
+                }
+        } else {
                 error = MALELF_ERROR;
         }
 
@@ -150,6 +248,8 @@ _u32 malelf_shellcode_init(int argc, char **argv)
                 {"input", 1, 0, SHELLCODE_BINARY},
                 {"format", 1, 0, SHELLCODE_FORMAT},
                 {"output", 1, 0, SHELLCODE_FILE},
+                {"magic-bytes", 1, 0, SHELLCODE_MAGIC_BYTES},
+                {"original-entry", 1, 0, SHELLCODE_ORIGINAL_ENTRY},
                 {0, 0, 0, 0}
         };
 
@@ -162,7 +262,7 @@ _u32 malelf_shellcode_init(int argc, char **argv)
         sh_config.ofname = NULL;
         sh_config.format = SHELLCODE_FMT_UNKNOWN;
 
-        while ((option = getopt_long (argc, argv, "ho:f:i:",
+        while ((option = getopt_long (argc, argv, "ho:f:i:e:m:",
                                       long_options, &option_index)) != -1) {
                 error = _malelf_shellcode_handle_options(option);
         }
@@ -179,6 +279,5 @@ _u32 malelf_shellcode_init(int argc, char **argv)
 
 _u32 malelf_shellcode_finish()
 {
-        printf("cleaning and exiting.\n");
         return MALELF_SUCCESS;
 }

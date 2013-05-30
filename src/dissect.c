@@ -157,7 +157,7 @@ static _u32 _malelf_dissect_set_binary_file(MalelfDissect *obj, char *fname)
 
         obj->binary = strdup(fname);
         malelf_binary_init(&binary);
-    	if (MALELF_SUCCESS != malelf_binary_open(fname, &binary)) {
+        if (MALELF_SUCCESS != malelf_binary_open(&binary, fname)) {
                 return MALELF_ERROR;
         }
 
@@ -226,8 +226,8 @@ static _u32 _malelf_dissect_table_ehdr()
         malelf_ehdr_get_type(&ehdr, &me_type);
         malelf_table_add_value(&table, (void*)"e_type", MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)"Object Type", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, 
-                               (void*)me_type.meaning, 
+        malelf_table_add_value(&table,
+                               (void*)me_type.meaning,
                                MALELF_TABLE_STR);
 
         /* 2 - Row */
@@ -235,8 +235,8 @@ static _u32 _malelf_dissect_table_ehdr()
         malelf_ehdr_get_version(&ehdr, &me_version);
         malelf_table_add_value(&table, (void*)"e_version", MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)"Version", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, 
-                               (void*)me_version.value, 
+        malelf_table_add_value(&table,
+                               (void*)me_version.value,
                                MALELF_TABLE_INT);
 
         /* 3 - Row */
@@ -260,48 +260,48 @@ static _u32 _malelf_dissect_table_ehdr()
         /* 6 - Row */
         malelf_ehdr_get_ehsize(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_ehsize", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, 
-                               (void*)"ELF Header Size", 
+        malelf_table_add_value(&table,
+                               (void*)"ELF Header Size",
                                MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         /* 7 - Row */
         malelf_ehdr_get_phentsize(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_phentsize", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, 
-                               (void*)"Size of PHT entries", 
+        malelf_table_add_value(&table,
+                               (void*)"Size of PHT entries",
                                MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         /* 8 - Row */
         malelf_ehdr_get_phnum(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_phnum", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, 
-                               (void*)"Number of PHT entries", 
+        malelf_table_add_value(&table,
+                               (void*)"Number of PHT entries",
                                MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         /* 9 - Row */
         malelf_ehdr_get_shentsize(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_shentsize", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, 
-                               (void*)"Size of one entry in SHT", 
+        malelf_table_add_value(&table,
+                               (void*)"Size of one entry in SHT",
                                MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         /* 10 - Row */
         malelf_ehdr_get_shnum(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_shnum", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, 
-                               (void*)"Number of sections", 
+        malelf_table_add_value(&table,
+                               (void*)"Number of sections",
                                MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
         /* 11 - Row */
         malelf_ehdr_get_shstrndx(&ehdr, &value);
         malelf_table_add_value(&table, (void*)"e_shstrndx", MALELF_TABLE_STR);
-        malelf_table_add_value(&table, 
-                               (void*)"SHT symbol index", 
+        malelf_table_add_value(&table,
+                               (void*)"SHT symbol index",
                                MALELF_TABLE_STR);
         malelf_table_add_value(&table, (void*)value, MALELF_TABLE_INT);
 
@@ -340,29 +340,29 @@ static _u32 _malelf_dissect_table_shdr()
         for (i = 0; i < shnum; i++) {
                 Elf32_Shdr *s = &sections[i];
                 malelf_table_add_value(&table, (void *)i, MALELF_TABLE_INT);
-                malelf_table_add_value(&table, 
-                                       (void *)s->sh_addr, 
+                malelf_table_add_value(&table,
+                                       (void *)s->sh_addr,
                                        MALELF_TABLE_HEX);
-                malelf_table_add_value(&table, 
-                                       (void *)s->sh_offset, 
+                malelf_table_add_value(&table,
+                                       (void *)s->sh_offset,
                                        MALELF_TABLE_INT);
                 malelf_shdr_get_mstype(&shdr, &ms_type, i);
-                malelf_table_add_value(&table, 
-                                       (void *)ms_type.name, 
+                malelf_table_add_value(&table,
+                                       (void *)ms_type.name,
                                        MALELF_TABLE_STR);
                 if (s->sh_type != SHT_NULL && shstrndx != 0x00) {
-                        strncpy(sec_name, 
-                                (char*) binary.mem + sections[shstrndx].sh_offset + sections[i].sh_name, 
+                        strncpy(sec_name,
+                                (char*) binary.mem + sections[shstrndx].sh_offset + sections[i].sh_name,
                                 sizeof(sec_name));
-                        malelf_table_add_value(&table, 
+                        malelf_table_add_value(&table,
                                                (void *)sec_name,
                                                MALELF_TABLE_STR);
                 } else {
-                        malelf_table_add_value(&table, 
+                        malelf_table_add_value(&table,
                                                (void *)" ",
                                                MALELF_TABLE_STR);
 
-                } 
+                }
                 sec_name[0] = '\0';
         }
 
@@ -433,7 +433,7 @@ static _u32 _malelf_dissect_report(MalelfDissect *obj, _u8 output_type)
                 if (obj->flag_ehdr) {
                         _malelf_dissect_table_ehdr();
                 }
-                
+
                 if (obj->flag_phdr) {
                         _malelf_dissect_table_phdr();
                 }
@@ -552,5 +552,3 @@ _u32 malelf_dissect_finish(MalelfDissect *obj)
 
         return MALELF_SUCCESS;
 }
-
-

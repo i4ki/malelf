@@ -1,0 +1,16 @@
+/Makefile
+/config.h
+/config.log
+/config.status
+/malware.bin
+/malware.c
+/src/.deps/dissect.Po
+/src/.deps/main.Po
+/src/.deps/shellcode.Po
+/src/.deps/util.Po
+/src/Makefile
+/src/dissect.o
+/src/main.o
+/src/malelf
+/src/shellcode.o
+/src/util.o

@@ -14,6 +14,7 @@ bin_PROGRAMS = malelf
 
 malelf_SOURCES = 	main.c \
 			dissect.c \
+			shellcode.c \
 			util.c
 
 malelf_LDADD = -lmalelf $(LIBXML2_CFLAGS)

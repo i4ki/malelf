@@ -1,6 +1,6 @@
-/* 
+/*
  * The malelf tool was written in pure C and developed using malelf library
- * to analyze (static/dynamic) malwares and infect ELF binaries. Evil using 
+ * to analyze (static/dynamic) malwares and infect ELF binaries. Evil using
  * this tool is the responsibility of the programmer.
  *
  * Author: Tiago Natel de Moura <tiago4orion@gmail.com>
@@ -30,9 +30,11 @@
 #include <malelf/error.h>
 
 #include "dissect.h"
+#include "shellcode.h"
 #include "util.h"
 
 #define DISSECT "dissect"
+#define SHELLCODE "shellcode"
 
 static void _malelf_help()
 {
@@ -63,13 +65,19 @@ int main(int argc, char **argv)
                 _malelf_help();
                 return -1;
         }
- 
-        if (strncmp(argv[1], DISSECT, sizeof(DISSECT)) == 0) { 
+
+        if (strncmp(argv[1], DISSECT, sizeof(DISSECT)) == 0) {
                 malelf_dissect_init(&dissect, argc, argv);
                 malelf_dissect_finish(&dissect);
+        } else if (strncmp(argv[1],
+                           SHELLCODE,
+                           sizeof (SHELLCODE)) == 0) {
+                malelf_shellcode_init(argc, argv);
+                malelf_shellcode_finish();
+
         } else {
                 _malelf_help();
-        } 
+        }
 
         return 0;
 }

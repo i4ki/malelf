@@ -35,6 +35,7 @@
 
 #define DISSECT "dissect"
 #define SHELLCODE "shellcode"
+#define INFECT "infect"
 
 static void _malelf_help()
 {
@@ -60,6 +61,7 @@ static void _malelf_help()
 int main(int argc, char **argv)
 {
         MalelfDissect dissect;
+        MalelfInfect infect;
 
         if (argc == 1) {
                 _malelf_help();
@@ -75,6 +77,9 @@ int main(int argc, char **argv)
                 malelf_shellcode_init(argc, argv);
                 malelf_shellcode_finish();
 
+        } else if (strncmp(argv[1], INFECT, sizeof(INFECT)) == 0) {
+                malelf_infect_init(&infect, argc, argv);
+                malelf_infect_finish(&infect);
         } else {
                 _malelf_help();
         }

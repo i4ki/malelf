@@ -32,6 +32,7 @@
 #include "dissect.h"
 #include "shellcode.h"
 #include "util.h"
+#include "infect.h"
 
 #define DISSECT "dissect"
 #define SHELLCODE "shellcode"

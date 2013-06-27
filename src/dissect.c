@@ -324,8 +324,8 @@ static _u32 _malelf_dissect_table_shdr()
         unsigned int i;
         MalelfShdrType ms_type;
         _u32 shstrndx;
-        char sec_name[50] = {0};
-        char *headers[] = {"N", "Addr", "Offset", "Name", "Type", NULL};
+        char *sec_name = NULL;
+        char *headers[] = {"N", "Addr", "Offset", "Type", "Name", NULL};
         _u32 error;
 
         if (MALELF_SUCCESS != malelf_table_init(&table, 75, 28, 5)) {
@@ -356,10 +356,15 @@ static _u32 _malelf_dissect_table_shdr()
                 if (s->sh_type != SHT_NULL && shstrndx != 0x00) {
                         error = malelf_binary_get_section_name(&binary,
                                                                i,
-                                                               (char **)&sec_name);
+                                                               &sec_name);
                         if (MALELF_SUCCESS != error) {
                                 MALELF_PERROR(error);
                                 return error;
+                        }
+
+                        /* truncate the string to 19 chars */
+                        if (strlen(sec_name) > 20) {
+                                sec_name[20] = 0;
                         }
 
                         malelf_table_add_value(&table,
@@ -371,7 +376,6 @@ static _u32 _malelf_dissect_table_shdr()
                                                MALELF_TABLE_STR);
 
                 }
-                sec_name[0] = '\0';
         }
 
         malelf_table_print(&table);

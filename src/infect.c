@@ -48,7 +48,7 @@ char *malelf_techniques[] = {
         "nop"
 };
 
-#define N_TECHNIQUES 2
+#define N_TECHNIQUES 1
 
 int g_argc;
 char **g_argv;

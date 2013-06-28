@@ -208,6 +208,17 @@ static _u32 _malelf_shellcode_handle_options(int option)
                 break;
         case SHELLCODE_MAGIC_BYTES:
                 sh_config.magic_bytes.long_val = atoi(optarg);
+                if (sh_config.magic_bytes.long_val <= 0 ||
+                    sh_config.magic_bytes.long_val > 99999999) {
+                        malelf_error("magic bytes '%ld' is out of range "
+                                     "(> 0 && < 99999999\n",
+                                     sh_config.magic_bytes.long_val);
+                        return MALELF_ERROR;
+                }
+                break;
+        case SHELLCODE_ORIGINAL_ENTRY:
+                sh_config.original_entry = atoi(optarg);
+                break;
         case ':':
                 printf("Unknown option character '%s'.\n", optarg);
                 break;

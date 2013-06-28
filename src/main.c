@@ -32,6 +32,7 @@
 #include "dissect.h"
 #include "shellcode.h"
 #include "util.h"
+#include "disas.h"
 #include "infect.h"
 #include "dynamic_analysis.h"
 
@@ -39,6 +40,7 @@
 #define SHELLCODE "shellcode"
 #define INFECT "infect"
 #define DYNAMIC_ANALYSIS "dynanalyse"
+#define DISAS "disas"
 
 static void _malelf_help()
 {
@@ -65,6 +67,7 @@ int main(int argc, char **argv)
 {
         MalelfDissect dissect;
         MalelfInfect infect;
+        Disas disas;
 
         if (argc == 1) {
                 _malelf_help();
@@ -86,6 +89,9 @@ int main(int argc, char **argv)
         } else if (strncmp(argv[1], DYNAMIC_ANALYSIS, sizeof(DYNAMIC_ANALYSIS)) == 0) {
                 malelf_dynanalyse_init(argc, argv);
                 malelf_dynanalyse_finish();
+        }  else if (strncmp(argv[1], DISAS, sizeof(DISAS)) == 0) {
+                disas_init(&disas, argc, argv);
+                disas_finish(&disas);
         } else {
                 _malelf_help();
         }

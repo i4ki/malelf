@@ -17,6 +17,7 @@ malelf_SOURCES = 	main.c \
 			shellcode.c \
 			util.c \
 			infect.c \
+			disas.c \
 			dynamic_analysis.c
 
-malelf_LDADD = -lmalelf $(LIBXML2_CFLAGS)
+malelf_LDADD = -lmalelf -ludis86 $(LIBXML2_CFLAGS)

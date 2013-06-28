@@ -1,0 +1,108 @@
+.TH MALELF 1
+
+.SH NAME
+malelf \- is a malefic tool to dissect and infect ELF binaries.
+.SH SYNOPSIS
+malelf command [options]
+.br
+.SH DESCRIPTION
+The malelf is a evil tool that could be used for good! It was
+.br
+developed with the intent to assist in the process of infecting
+.br
+ELF binaries and provide a safe way to analyze malwares.
+
+EVIL USING THIS TOOL IS THE RESPONSABILITY OF THE PROGRAMMER.
+.SH COMMANDS
+.br
+Malelficus works with commands, where each has a specific goal, 
+.br
+they are: dissect, reverse_elf, disas, entry_point, infect, 
+.br
+shellcode, copy, database, analyze and dynanalyse.
+.SS "dissect"
+Show ELF binary information.
+.br
+.SS "infect"
+Infect ELF binary.
+.br
+.SH OPTIONS
+.br
+
+.SS "dissect"
+.br
+
+.TP
+.BR \-h ", " \-\-help
+.br
+Print a usage message briefly summarizing these command-line
+.br
+options, then exit.
+.TP
+.BR \-i ", " \-\-input\ <ELF>
+Input ELF binary file.
+.TP
+.BR \-e ", " \-\-ehdr
+Show ELF Header.
+.TP
+.BR \-p ", " \-\-phdr
+.br
+Show Program Header Table information.
+.TP
+.BR \-s ", " \-\-shdr
+.br
+Show Section Header Table information.
+.TP
+.BR \-S ", " \-\-stable
+.br
+Show Symbol Table.
+.TP
+.BR \-f ", " \-\-format\ <xml|txt>
+.br
+Define the output format.
+.TP
+.BR \-o ", " \-\-output\ <file>
+.br
+Save dissect information on output file.
+
+.SS "infect"
+.TP
+.BR \-h ", " \-\-help
+.br
+Print a usage message briefly summarizing these command-line
+.br
+options, then exit.
+.TP
+.BR \-m ", " \-\-method\ <0|1|2>
+Method 0 \- Silvio Cesare technique (text padding append).
+.br
+Method 1 \- Text segment prepend (Ryan O'Neill <ryan@bitlackeys.com>).
+.br
+Method 2 \- NOP.
+.TP
+.BR \-i ", " \-\-input\ <ELF>
+Input binary file.
+.TP
+.BR \-o ", " \-\-output\ <output-file>
+Output infected file.
+.TP
+.BI \-p " MALWARE" 
+Malware FLAT binary (eg.: nasm -f bin).
+.TP
+.BR \-f ", " \-\-offset
+Offset in malware to overwrite with the true entry_point.
+
+.SH EXAMPLES
+Show ELF header of ls binary.
+.IP
+$ malelf dissect -i /bin/ls -e
+.PP
+Save Program Header Table of ls binary on /tmp/dissect.xml file.
+.IP
+$ malelf dissect -i /bin/ls -p -f xml -o /tmp/dissect.xml
+
+.SH REPORTING BUGS
+Please, check the latest development code and report at https://github.com/SecPlus/malelf/issues.
+
+.SH COPYRIGHT
+Copyright  ©  2012  malelficus  authors. Licensed under the Apache License, Version 2.0 (the "License").  

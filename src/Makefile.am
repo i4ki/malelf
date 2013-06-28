@@ -20,3 +20,7 @@ malelf_SOURCES = 	main.c \
 			dynamic_analysis.c
 
 malelf_LDADD = -lmalelf $(LIBXML2_CFLAGS)
+
+man_MANS = malelf.1
+
+dist_man_MANS = malelf.1

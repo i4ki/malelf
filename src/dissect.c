@@ -498,6 +498,9 @@ static _u32 _malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
 
         if (MALELF_SUCCESS == error ) {
                 error = _malelf_dissect(obj);
+        } else {
+                printf("Invalid arguments...\n");
+                malelf_dissect_help();
         }
 
         return error;

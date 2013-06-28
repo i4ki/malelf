@@ -26,6 +26,14 @@ Show ELF binary information.
 .SS "infect"
 Infect ELF binary.
 .br
+.SS "disas"
+Disassembly binary ELF.
+.br
+.SS "shellcode"
+create the virus shellcode in the proper format to use with
+.br
+the infect command.
+.br
 .SH OPTIONS
 .br
 
@@ -73,24 +81,55 @@ Print a usage message briefly summarizing these command-line
 .br
 options, then exit.
 .TP
-.BR \-m ", " \-\-method\ <0|1|2>
-Method 0 \- Silvio Cesare technique (text padding append).
+.BR \-t ", " \-\-technique\ <0|1|2>
+Technique 0 \- Silvio Cesare technique (text padding append).
 .br
-Method 1 \- Text segment prepend (Ryan O'Neill <ryan@bitlackeys.com>).
+Technique 1 \- Text segment prepend (Ryan O'Neill <ryan@bitlackeys.com>).
 .br
-Method 2 \- NOP.
+Technique 2 \- NOP.
 .TP
 .BR \-i ", " \-\-input\ <ELF>
 Input binary file.
 .TP
-.BR \-o ", " \-\-output\ <output-file>
+.BR \-o ", " \-\-output\ <infected-file>
 Output infected file.
 .TP
-.BI \-p " MALWARE" 
+.BR \-m ", " \-\-malware\ <malware>
 Malware FLAT binary (eg.: nasm -f bin).
+
+.SS "disas"
 .TP
-.BR \-f ", " \-\-offset
-Offset in malware to overwrite with the true entry_point.
+.BR \-h ", " \-\-help
+.br
+Print a usage message briefly summarizing these command-line
+.br
+options, then exit.
+.TP
+.BR \-i ", " \-\-input\ <ELF>
+Input binary file.
+.TP
+.BR \-s ", " \-\-section\ <section>
+Section to be disassembled.
+
+.SS "shellcode"
+.TP
+.BR \-h ", " \-\-help
+.br
+Print a usage message briefly summarizing these command-line
+.br
+options, then exit.
+.TP
+.BR \-i ", " \-\-input\ <ELF>
+Input binary file.
+.TP
+.BR \-f ", " \-\-format\ <format>
+Output Format (C-string or malelf). Default is malelf.
+.TP
+.BR \-o ", " \-\-output\ <file>
+Output shellcode file.
+.TP
+.BR \-e ", " \-\-return\-entry\-point
+Entry point to host.
 
 .SH EXAMPLES
 Show ELF header of ls binary.
@@ -100,6 +139,10 @@ $ malelf dissect -i /bin/ls -e
 Save Program Header Table of ls binary on /tmp/dissect.xml file.
 .IP
 $ malelf dissect -i /bin/ls -p -f xml -o /tmp/dissect.xml
+.PP
+Disassemble ls command.
+.IP
+$ malelf disas -i /bin/ls
 
 .SH REPORTING BUGS
 Please, check the latest development code and report at https://github.com/SecPlus/malelf/issues.

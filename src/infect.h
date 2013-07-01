@@ -38,18 +38,22 @@ typedef struct {
         int mfd;         /* Malware file descriptor */
         char *technique; /* Technique to infect */
         _i8 itech;       /* Unsigned technique digit */
+        _u32 offset_ret; /* Offset in shellcode to patch with host entrypoint */
+        _u8 auto_shellcode;
 } MalelfInfect;
 
 /*
  * Infect Options
  */
-#define INFECT_HELP      'h'
-#define INFECT_OUTPUT    'o'
-#define INFECT_INPUT     'i'
-#define INFECT_MALWARE   's'
-#define INFECT_TECHNIQUE 't'
-#define INFECT_LIST      'l'
-#define INFECT_UNKNOWN   '?'
+#define INFECT_HELP          'h'
+#define INFECT_OUTPUT        'o'
+#define INFECT_INPUT         'i'
+#define INFECT_MALWARE       'm'
+#define INFECT_TECHNIQUE     't'
+#define INFECT_LIST          'l'
+#define INFECT_OFFSETRET     'f'
+#define INFECT_AUTOSHELLCODE 'a'
+#define INFECT_UNKNOWN       '?'
 
 /* Infect techniques */
 #define INFECT_TECH_CESARE 0

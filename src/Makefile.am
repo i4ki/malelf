@@ -23,5 +23,3 @@ malelf_SOURCES = 	main.c \
 malelf_LDADD = -lmalelf -ludis86 $(LIBXML2_CFLAGS)
 
 man_MANS = malelf.1
-
-dist_man_MANS = malelf.1

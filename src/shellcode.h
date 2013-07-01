@@ -33,6 +33,7 @@
  * Shellcode Options
  */
 #define SHELLCODE_FORMAT 'f'
+#define SHELLCODE_LIST   'l'
 #define SHELLCODE_HELP   'h'
 #define SHELLCODE_BINARY 'i'
 #define SHELLCODE_FILE   'o'
@@ -40,15 +41,14 @@
 #define SHELLCODE_ORIGINAL_ENTRY 'e'
 #define SHELLCODE_UNKNOWN '?'
 
-#define SHELLCODE_FMT_UNKNOWN (0x00)
-#define SHELLCODE_FMT_DEFAULT (0x01)
-#define SHELLCODE_FMT_CSTRING (0x02)
-
+#define SHELLCODE_FMT_BINARY 0
+#define SHELLCODE_FMT_CSTRING 1
 
 typedef struct {
         char *ifname;
         char *ofname;
-        _u8 format;
+        char *format;
+        _i8 iformat;
         union malelf_dword magic_bytes;
         _u32 original_entry;
 } ShellcodeOptions;

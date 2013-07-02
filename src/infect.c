@@ -110,7 +110,7 @@ _u32 malelf_infect_verify_technique(MalelfInfect *obj)
                 MALELF_DEBUG_INFO("No digits were found in technique\n");
                 /* parse string */
                 for (i = 0;
-                     i < sizeof (malelf_techniques)/sizeof (char);
+                     i < N_TECHNIQUES;
                      i++) {
                         if (strncmp(malelf_techniques[i],
                                     obj->technique,
@@ -208,7 +208,7 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                 }
 
                 MALELF_LOG_SUCCESS("Payload shellcode automatically "
-                                   "created, magic bytes at '%02x'\n",
+                                   "created, magic bytes at '0x%04x'\n",
                                    magic_offset);
                 result = malelf_infect_silvio_padding32(&input,
                                                         &output,
@@ -234,13 +234,9 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                                                   &obj->offset_ret);
                 if (MALELF_SUCCESS != result) {
                         MALELF_LOG_WARN("malelficus doesn't found the "
-                                          "magic bytes %08x in '%s'",
+                                          "magic bytes 0x%08x in '%s'",
                                           magic_bytes.long_val,
                                           malware.fname);
-                        MALELF_LOG_WARN("malelf does not found the magic "
-                                        "bytes %08x in malware '%s'.\n",
-                                        magic_bytes.long_val,
-                                        malware.fname);
                         MALELF_LOG_WARN("You can use -b/--magic-bytes to "
                                         "specify another magic bytes in "
                                         "malware or use -f/--offset-ret "
@@ -250,6 +246,8 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                                 );
 
                 }
+
+                MALELF_LOG_SUCCESS("Found at '0x%04x\n", obj->offset_ret);
 
                 result = malelf_infect_silvio_padding32(&input,
                                                         &output,
@@ -302,7 +300,10 @@ _u32 _malelf_infect(MalelfInfect *obj)
         result = malelf_infect_verify_technique(obj);
 
         if (MALELF_SUCCESS != result) {
-                MALELF_PERROR(result);
+                MALELF_LOG_ERROR("Invalid -t/--technique option.\n");
+                MALELF_LOG_ERROR("Use %s infect -l (to list techniques"
+                                 " available.\n",
+                        *g_argv);
                 return result;
         }
 

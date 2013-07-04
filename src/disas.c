@@ -67,7 +67,7 @@ static _u32 _disas_handle_options(Disas *obj, int option)
                 break;
         case DISAS_SECTION:
                 error |= _disas_set_section(obj, optarg);
-                printf("%s\n", optarg);
+                printf("Section: %s\n", optarg);
                 break;
         case DISAS_BINARY:
                 error |= _disas_set_binary_file(obj, optarg);
@@ -89,6 +89,7 @@ static _u32 _disas_handle_options(Disas *obj, int option)
 
 static _u32 _disas(Disas *obj)
 {
+        _u32 result;
         if (NULL == obj) {
                 return MALELF_ERROR;
         }
@@ -100,9 +101,9 @@ static _u32 _disas(Disas *obj)
         }
 
         malelf_disas_init(&obj->disas, &obj->bin);
-        malelf_disas(&obj->disas, &obj->bin, obj->section);
- 
-        return MALELF_SUCCESS;
+        result = malelf_disas(&obj->disas, &obj->bin, obj->section);
+
+        return result;
 }
 
 static _u32 _disas_options(Disas *obj, int argc, char **argv)
@@ -113,7 +114,7 @@ static _u32 _disas_options(Disas *obj, int argc, char **argv)
         static struct option long_options[] = {
                 {"help", 0, 0, DISAS_HELP},
                 {"input", 1, 0, DISAS_BINARY},
-                {"section", 0, 0, DISAS_SECTION},
+                {"section", 1, 0, DISAS_SECTION},
                 {0, 0, 0, 0}
         };
 
@@ -129,6 +130,9 @@ static _u32 _disas_options(Disas *obj, int argc, char **argv)
 
         if (MALELF_SUCCESS == error ) {
                 error = _disas(obj);
+                if (MALELF_ESECTION_NOT_FOUND == error) {
+                        printf("Section not found ...\n");
+                }
         } else {
                 printf("Invalid arguments...\n");
                 disas_help();
@@ -176,4 +180,3 @@ _u32 disas_finish(Disas *obj)
 
         return MALELF_SUCCESS;
 }
-

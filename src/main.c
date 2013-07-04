@@ -49,15 +49,10 @@ static void _malelf_help()
         HELP("Usage: malelf <command> [-h] <options> \n");
         HELP("Commands:\n");
         HELP("         dissect \tShow ELF binary info. \n");
-        HELP("         reverse_elf \tReverse the ELF binary image in the C structs representation.\n");
         HELP("         disas   \tDisassembly binary ELF in NASM compatible format.\n");
-        HELP("         entry_point \tEntry point command. \n");
         HELP("         infect \tInfect the binary with a malware.\n");
         HELP("         shellcode \tcreate the virus shellcode in the proper format\n\
                        \tto use with the infect command.\n");
-        HELP("         copy     \tCopy ELF binary.\n");
-        HELP("         database \tDatabase manager.\n");
-        HELP("         analyse \tStatically analyse the ELF binary for malwares.\n");
         HELP("         dynanalyse \tDinamically analyse the ELF binary for malwares.\n");
         HELP("\n");
         exit(MALELF_SUCCESS);

@@ -15,9 +15,9 @@ ELF binaries and provide a safe way to analyze malwares.
 EVIL USING THIS TOOL IS THE RESPONSABILITY OF THE PROGRAMMER.
 .SH COMMANDS
 .br
-Malelficus works with commands, where each has a specific goal, 
+Malelficus works with commands, where each has a specific goal,
 .br
-they are: dissect, reverse_elf, disas, entry_point, infect, 
+they are: dissect, reverse_elf, disas, entry_point, infect,
 .br
 shellcode, copy, database, analyze and dynanalyse.
 .SS "dissect"
@@ -81,12 +81,10 @@ Print a usage message briefly summarizing these command-line
 .br
 options, then exit.
 .TP
-.BR \-t ", " \-\-technique\ <0|1|2>
-Technique 0 \- Silvio Cesare technique (text padding append).
+.BR \-t ", " \-\-technique\ <0|1>
+Technique 0 \- silvio-text-padding (Silvio Cesare technique)
 .br
-Technique 1 \- Text segment prepend (Ryan O'Neill <ryan@bitlackeys.com>).
-.br
-Technique 2 \- NOP.
+Technique 1 \- nop (NOP inject)
 .TP
 .BR \-i ", " \-\-input\ <ELF>
 Input binary file.
@@ -96,6 +94,10 @@ Output infected file.
 .TP
 .BR \-m ", " \-\-malware\ <malware>
 Malware FLAT binary (eg.: nasm -f bin).
+.TP
+.BR \-l ", " \-\-list
+.br
+List the infect techniques available.
 
 .SS "disas"
 .TP
@@ -123,13 +125,19 @@ options, then exit.
 Input binary file.
 .TP
 .BR \-f ", " \-\-format\ <format>
-Output Format (C-string or malelf). Default is malelf.
+Output Format. Default is binary
 .TP
 .BR \-o ", " \-\-output\ <file>
 Output shellcode file.
 .TP
 .BR \-e ", " \-\-return\-entry\-point
 Entry point to host.
+.TP
+.BR \-m ", " \-\-magic-bytes <bytes in dec>
+Magic bytes to insert in ret address.
+.TP
+.BR \-l ", " \-\-list
+List output formats available
 
 .SH EXAMPLES
 Show ELF header of ls binary.
@@ -142,10 +150,14 @@ $ malelf dissect -i /bin/ls -p -f xml -o /tmp/dissect.xml
 .PP
 Disassemble ls command.
 .IP
-$ malelf disas -i /bin/ls
+$ malelf disas -i /bin/ls -s .text
+Infect bash with a backdoor
+.IP
+$ malelf infect -i /bin/bash -o ./mybash -m samples/backdoor.bin
+.PP
 
 .SH REPORTING BUGS
 Please, check the latest development code and report at https://github.com/SecPlus/malelf/issues.
 
 .SH COPYRIGHT
-Copyright  ©  2012  malelficus  authors. Licensed under the Apache License, Version 2.0 (the "License").  
+Copyright  ©  2012  malelficus  authors. Licensed under the Apache License, Version 2.0 (the "License").

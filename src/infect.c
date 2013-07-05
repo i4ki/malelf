@@ -66,9 +66,7 @@ void malelf_infect_help()
         HELP("         -f, --offset-return\tOffset in shellcode to patch the host entrypoint\n");
         HELP("         -a, --auto-shellcode\tAutomatically patch shellcode with host entrypoint\n");
         HELP("         -t, --technique  \tTechnique to infect.\n");
-        HELP("                          \tUse %s infect -l to list ",
-             *g_argv);
-        HELP("techniques available.\n");
+        HELP("         -l, --list       \tList techniques.\n");
         HELP("Example: %s infect -i /bin/ls -o myls -m evil.bin -t "
              "'%s'\n", *g_argv, malelf_techniques[0]);
         HELP("\n");
@@ -391,7 +389,7 @@ static _u32 _malelf_infect_options(MalelfInfect *obj)
                 {"malware", 1, 0, INFECT_MALWARE},
                 {"technique", 1, 0, INFECT_TECHNIQUE},
                 {"offset-ret", 1, 0, INFECT_OFFSETRET},
-                {"auto-shellcode", 1, 0, INFECT_AUTOSHELLCODE},
+                {"auto-shellcode", 0, 0, INFECT_AUTOSHELLCODE},
                 {"list", 0, 0, INFECT_LIST},
                 {0, 0, 0, 0}
         };

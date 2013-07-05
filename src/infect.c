@@ -399,7 +399,7 @@ static _u32 _malelf_infect_options(MalelfInfect *obj)
                 return MALELF_ERROR;
         }
 
-        while ((option = getopt_long (g_argc, g_argv, "hi:o:m:t:la",
+        while ((option = getopt_long (g_argc, g_argv, "hi:o:m:t:f:la",
                                       long_options, &option_index)) != -1) {
                 error = _malelf_infect_handle_options(obj, option);
         }

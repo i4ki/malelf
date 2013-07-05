@@ -187,7 +187,7 @@ _u32 _malelf_shellcode_flat(ShellcodeOptions *config)
                                              &input_shellcode,
                                              &magic_offset,
                                              0,
-                                             0);
+                                             config->magic_bytes.long_val);
 
         if (MALELF_SUCCESS != error) {
                 MALELF_LOG_ERROR("Failed to create FLAT shellcode.");
@@ -336,6 +336,8 @@ static _u32 _malelf_shellcode_handle_options(int option)
                         error = MALELF_ERROR;
                 }
         } else {
+                fprintf(stderr, "use -f <format> to select a output"
+                        "format");
                 error = MALELF_ERROR;
         }
 
@@ -372,6 +374,7 @@ _u32 malelf_shellcode_init(int argc, char **argv)
         sh_config.ofname = NULL;
         sh_config.format = NULL;
         sh_config.iformat = -1;
+        sh_config.magic_bytes.long_val = 0;
 
         while ((option = getopt_long (g_argc, g_argv, "hlo:f:i:e:m:",
                                       long_options, &option_index)) != -1) {

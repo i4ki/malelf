@@ -185,9 +185,14 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                 goto cesare_error;
         }
 
-        MALELF_LOG_SUCCESS("binary input: '%s'\n", input.fname);
-        MALELF_LOG_SUCCESS("binary output: '%s'\n", obj->ofname);
-        MALELF_LOG_SUCCESS("malware payload: '%s'\n\n", malware.fname);
+        MALELF_LOG_SUCCESS("binary input: '%s', size: %u bytes\n",
+                           input.fname,
+                           input.size);
+        MALELF_LOG_SUCCESS("binary output: '%s'\n",
+                           obj->ofname);
+        MALELF_LOG_SUCCESS("malware payload: '%s', size: %u bytes\n\n",
+                           malware.fname,
+                           malware.size);
 
         if (obj->auto_shellcode) {
                 /* with --auto-shellcode the infector automatically

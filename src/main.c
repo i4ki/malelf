@@ -33,14 +33,18 @@
 #include "shellcode.h"
 #include "util.h"
 #include "disas.h"
+#include "database.h"
+#include "analyze.h"
 #include "infect.h"
 #include "dynamic_analysis.h"
 
-#define DISSECT "dissect"
-#define SHELLCODE "shellcode"
-#define INFECT "infect"
+#define DISSECT          "dissect"
+#define SHELLCODE        "shellcode"
+#define INFECT           "infect"
 #define DYNAMIC_ANALYSIS "dynanalyse"
-#define DISAS "disas"
+#define DISAS            "disas"
+#define DATABASE         "database"
+#define ANALYZE          "analyze"
 
 static void _malelf_help()
 {
@@ -54,6 +58,8 @@ static void _malelf_help()
         HELP("         shellcode \tcreate the virus shellcode in the proper format\n\
                        \tto use with the infect command.\n");
         HELP("         dynanalyse \tDinamically analyse the ELF binary for malwares.\n");
+        HELP("         database \tStores ELF binary info in a database.\n");
+        HELP("         analyze \tAnalyze ELF binary info in a database.\n");
         HELP("\n");
         exit(MALELF_SUCCESS);
 }
@@ -63,6 +69,8 @@ int main(int argc, char **argv)
         MalelfDissect dissect;
         MalelfInfect infect;
         Disas disas;
+        Database database;
+        Analyze analyze;
 
         if (argc == 1) {
                 _malelf_help();
@@ -77,16 +85,21 @@ int main(int argc, char **argv)
                            sizeof (SHELLCODE)) == 0) {
                 malelf_shellcode_init(argc, argv);
                 malelf_shellcode_finish();
-
         } else if (strncmp(argv[1], INFECT, sizeof(INFECT)) == 0) {
                 malelf_infect_init(&infect, argc, argv);
                 malelf_infect_finish(&infect);
         } else if (strncmp(argv[1], DYNAMIC_ANALYSIS, sizeof(DYNAMIC_ANALYSIS)) == 0) {
                 malelf_dynanalyse_init(argc, argv);
                 malelf_dynanalyse_finish();
-        }  else if (strncmp(argv[1], DISAS, sizeof(DISAS)) == 0) {
+        } else if (strncmp(argv[1], DISAS, sizeof(DISAS)) == 0) {
                 disas_init(&disas, argc, argv);
                 disas_finish(&disas);
+        } else if (strncmp(argv[1], DATABASE, sizeof(DATABASE)) == 0) {
+                database_init(&database, argc, argv);
+                database_finish(&database);
+        } else if (strncmp(argv[1], ANALYZE, sizeof(ANALYZE)) == 0) {
+                analyze_init(&analyze, argc, argv);
+                analyze_finish(&analyze);
         } else {
                 _malelf_help();
         }

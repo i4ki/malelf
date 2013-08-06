@@ -4,6 +4,7 @@ malelf
 Malelficus program to dissect and infect ELF binaries.
 
 With malelf you can:
+
     * infect/backdoorize ELF binaries;
     * dissect ELF data structures;
     * Report ELF data structures in text or xml;

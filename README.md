@@ -268,6 +268,7 @@ More info:
 Documentation (only portuguese ...)
 http://secplus.github.io/malelficus/documentation/
 http://www.slideshare.net/tiagonatel/desenvolvimento-de-malware
+http://hemingway.softwarelivre.org/fisl14/high/41d/sala41d-high-201307061559.ogg
 
 Soon we will have more documentation here and other interesting features of the tool.
 

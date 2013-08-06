@@ -263,7 +263,12 @@ To get all infect techniques available use:
 But at the moment, only the basic silvio text padding is ready to use.
 
 That's all !
-Soon we will have more documentation here and other interesting features of the tool.
 
+More info:
+Documentation (only portuguese ...)
+http://secplus.github.io/malelficus/documentation/
+http://www.slideshare.net/tiagonatel/desenvolvimento-de-malware
+
+Soon we will have more documentation here and other interesting features of the tool.
 
 SEC+ Team

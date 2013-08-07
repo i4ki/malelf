@@ -17,9 +17,9 @@
 /*  Malelf */
 #include "defines.h"
 #include "util.h"
-#include "analyze.h"
+#include "analyse.h"
 
-static _u32 _analyze_set_binary_file(Analyze *obj, const char *filename)
+static _u32 _analyse_set_binary_file(Analyse *obj, const char *filename)
 {
         if (NULL == obj) {
                 return MALELF_ERROR;
@@ -37,7 +37,7 @@ static _u32 _analyze_set_binary_file(Analyze *obj, const char *filename)
         return MALELF_SUCCESS;
 }
 
-static _u32 _analyze_set_database(Analyze *obj, const char *database)
+static _u32 _analyse_set_database(Analyse *obj, const char *database)
 {
         if (NULL == obj) {
                 return MALELF_ERROR;
@@ -57,25 +57,25 @@ static _u32 _analyze_set_database(Analyze *obj, const char *database)
 
 
 
-static _u32 _analyze_handle_options(Analyze *obj, int option)
+static _u32 _analyse_handle_options(Analyse *obj, int option)
 {
         static _u8 error = MALELF_SUCCESS;
 
         switch (option) {
-        case ANALYZE_HELP:
-                analyze_help();
+        case ANALYSE_HELP:
+                analyse_help();
                 break;
-        case ANALYZE_INPUT:
-                error |= _analyze_set_binary_file(obj, optarg);
+        case ANALYSE_INPUT:
+                error |= _analyse_set_binary_file(obj, optarg);
                 break;
-        case ANALYZE_DATABASE:
-                error |= _analyze_set_database(obj, optarg);
+        case ANALYSE_DATABASE:
+                error |= _analyse_set_database(obj, optarg);
                 break;
         case ':':
                 printf("Unknown option character '%s'.\n", optarg);
                 break;
-        case ANALYZE_UNKNOWN:
-                analyze_help();
+        case ANALYSE_UNKNOWN:
+                analyse_help();
                 error |= 1;
                 break;
         }
@@ -83,7 +83,7 @@ static _u32 _analyze_handle_options(Analyze *obj, int option)
         return error;
 }
 
-static bool _analyze_search_section(Analyze *obj, const char *section) {
+static bool _analyse_search_section(Analyse *obj, const char *section) {
 	char line[256] = {0};
 	
         if (NULL == obj) {
@@ -118,7 +118,7 @@ static bool _analyze_search_section(Analyze *obj, const char *section) {
         return false;
 }
 
-static _u32 _analyze_binary_sections(Analyze *obj)
+static _u32 _analyse_binary_sections(Analyse *obj)
 {
         MalelfBinary bin;
         int error;
@@ -155,7 +155,7 @@ static _u32 _analyze_binary_sections(Analyze *obj)
                         return error;
                 }
 
-                if (false == _analyze_search_section(obj, name)) {
+                if (false == _analyse_search_section(obj, name)) {
                         printf("Section %s NOT Found in database\n", name);
                 }
         }
@@ -165,72 +165,72 @@ static _u32 _analyze_binary_sections(Analyze *obj)
 }
 
 
-static _u32 _analyze(Analyze *obj)
+static _u32 _analyse(Analyse *obj)
 {
         if (NULL == obj) {
                 return MALELF_ERROR;
         }
 
-        return _analyze_binary_sections(obj);
+        return _analyse_binary_sections(obj);
 }
 
-static _u32 _analyze_options(Analyze *obj, int argc, char **argv)
+static _u32 _analyse_options(Analyse *obj, int argc, char **argv)
 {
         _i32 option = 0;
         _u32 error = MALELF_ERROR;
         int option_index = 0;
         static struct option long_options[] = {
-                {"help", 0, 0, ANALYZE_HELP},
-                {"input", 1, 0, ANALYZE_INPUT},
-                {"section", 1, 0, ANALYZE_SECTION},
-                {"database", 1, 0, ANALYZE_DATABASE},
+                {"help", 0, 0, ANALYSE_HELP},
+                {"input", 1, 0, ANALYSE_INPUT},
+                {"section", 1, 0, ANALYSE_SECTION},
+                {"database", 1, 0, ANALYSE_DATABASE},
                 {0, 0, 0, 0}
         };
 
         if (2 == argc) {
-                analyze_help();
+                analyse_help();
                 return MALELF_ERROR;
         }
 
         while ((option = getopt_long (argc, argv, "hsd:i:",
                                       long_options, &option_index)) != -1) {
-                error = _analyze_handle_options(obj, option);
+                error = _analyse_handle_options(obj, option);
         }
 
         if (MALELF_SUCCESS == error ) {
-                error = _analyze(obj);
+                error = _analyse(obj);
         } else {
                 printf("Invalid arguments...\n");
-                analyze_help();
+                analyse_help();
         }
 
         return error;
 }
 
-void analyze_help(void)
+void analyse_help(void)
 {
         HELP("\n");
-        HELP("This command analyze binary information.\n");
-        HELP("Usage: malelf analyze <options>\n");
-        HELP("         -h, --help     \tAnalyze Help\n");
+        HELP("This command analyse binary information.\n");
+        HELP("Usage: malelf analyse <options>\n");
+        HELP("         -h, --help     \tAnalyse Help\n");
         HELP("         -i, --input    \tBinary input file\n");
         HELP("         -d, --database \tDatabase\n");
-        HELP("         -s, --section  \tAnalyze the binary sections\n");
-        HELP("Example: malelf analyze -i /bin/ls -d db.txt -s\n");
+        HELP("         -s, --section  \tAnalyse the binary sections\n");
+        HELP("Example: malelf analyse -i /bin/ls -d db.txt -s\n");
         HELP("\n");
         exit(MALELF_SUCCESS);
 }
 
-_u32 analyze_init(Analyze *obj, int argc, char **argv)
+_u32 analyse_init(Analyse *obj, int argc, char **argv)
 {
         obj->database = NULL;
         obj->filename = NULL;
         obj->fp = NULL;
 
-        return _analyze_options(obj, argc, argv);
+        return _analyse_options(obj, argc, argv);
 }
 
-_u32 analyze_finish(Analyze *obj)
+_u32 analyse_finish(Analyse *obj)
 {
         if (NULL == obj) {
                 return MALELF_ERROR;

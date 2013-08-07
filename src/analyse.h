@@ -1,6 +1,6 @@
 /*
  * The malelf tool was written in pure C and developed using malelf library
- * to analyze (static/dynamic) malwares and infect ELF binaries. Evil using
+ * to analyse (static/dynamic) malwares and infect ELF binaries. Evil using
  * this tool is the responsibility of the programmer.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,33 +17,33 @@
  *
  */
 
-#ifndef __ANALYZE_H__
-#define __ANALYZE_H__
+#ifndef __ANALYSE_H__
+#define __ANALYSE_H__
 
 #include <malelf/binary.h>
 
 /*
- * Analyze Options
+ * Analyse Options
  */
-#define ANALYZE_HELP     'h'
-#define ANALYZE_INPUT    'i'
-#define ANALYZE_DATABASE 'd'
-#define ANALYZE_SECTION  's'
-#define ANALYZE_UNKNOWN  '?'
+#define ANALYSE_HELP     'h'
+#define ANALYSE_INPUT    'i'
+#define ANALYSE_DATABASE 'd'
+#define ANALYSE_SECTION  's'
+#define ANALYSE_UNKNOWN  '?'
 
 /* Store info about dissect */
 typedef struct  {
         char *filename;
         char *database;   /* Binary (Input) Directory */
         FILE *fp;          /* FILE Pointer */
-} Analyze;
+} Analyse;
 
 
-_u32 analyze_init(Analyze *obj, int argc, char **argv);
+_u32 analyse_init(Analyse *obj, int argc, char **argv);
 
-_u32 analyze_finish(Analyze *obj);
+_u32 analyse_finish(Analyse *obj);
 
-void analyze_help();
+void analyse_help();
 
 
-#endif /* __ANALYZE_H__ */
+#endif /* __ANALYSE_H__ */

@@ -1,6 +1,6 @@
 /*
  * The malelf tool was written in pure C and developed using malelf library
- * to analyze (static/dynamic) malwares and infect ELF binaries. Evil using
+ * to analyse (static/dynamic) malwares and infect ELF binaries. Evil using
  * this tool is the responsibility of the programmer.
  *
  * Author: Tiago Natel de Moura <tiago4orion@gmail.com>
@@ -34,7 +34,7 @@
 #include "util.h"
 #include "disas.h"
 #include "database.h"
-#include "analyze.h"
+#include "analyse.h"
 #include "infect.h"
 #include "dynamic_analysis.h"
 
@@ -44,7 +44,7 @@
 #define DYNAMIC_ANALYSIS "dynanalyse"
 #define DISAS            "disas"
 #define DATABASE         "database"
-#define ANALYZE          "analyze"
+#define ANALYSE          "analyse"
 
 static void _malelf_help()
 {
@@ -59,7 +59,7 @@ static void _malelf_help()
                        \tto use with the infect command.\n");
         HELP("         dynanalyse \tDinamically analyse the ELF binary for malwares.\n");
         HELP("         database \tStores ELF binary info in a database.\n");
-        HELP("         analyze \tAnalyze ELF binary info in a database.\n");
+        HELP("         analyse \tAnalyse ELF binary info in a database.\n");
         HELP("\n");
         exit(MALELF_SUCCESS);
 }
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
         MalelfInfect infect;
         Disas disas;
         Database database;
-        Analyze analyze;
+        Analyse analyse;
 
         if (argc == 1) {
                 _malelf_help();
@@ -97,9 +97,9 @@ int main(int argc, char **argv)
         } else if (strncmp(argv[1], DATABASE, sizeof(DATABASE)) == 0) {
                 database_init(&database, argc, argv);
                 database_finish(&database);
-        } else if (strncmp(argv[1], ANALYZE, sizeof(ANALYZE)) == 0) {
-                analyze_init(&analyze, argc, argv);
-                analyze_finish(&analyze);
+        } else if (strncmp(argv[1], ANALYSE, sizeof(ANALYSE)) == 0) {
+                analyse_init(&analyse, argc, argv);
+                analyse_finish(&analyse);
         } else {
                 _malelf_help();
         }

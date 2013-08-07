@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <getopt.h>
 #include <unistd.h>
@@ -36,10 +37,14 @@ static _u32 _database_set_binary_directory(Database *obj, char *directory)
          * Example: /bin is diferent /bin/
          */
         if (directory[strlen(directory) - 1] != '/' ) {
-            new_dir = malloc(strlen(directory) + 1);
+            new_dir = (char *) malloc(strlen(directory) + 2);
+            if (NULL == new_dir) {
+                    return MALELF_EALLOC;
+            }
+            memset(new_dir, '\0', strlen(directory) + 2);
+
             strncpy(new_dir, directory, strlen(directory));
             strncat(new_dir, "/", 1);
-            printf("NEWDIR = %s\n", new_dir);
             obj->directory = strdup(new_dir);
             free(new_dir);
         } else {
@@ -101,7 +106,7 @@ static _u32 _database_handle_options(Database *obj, int option)
 
 static bool _database_search_section(Database *obj, const char *section) {
 	char line[256] = {0};
-	
+
         if (NULL == obj) {
                 return MALELF_ERROR;
         }
@@ -125,7 +130,7 @@ static bool _database_search_section(Database *obj, const char *section) {
                 if (line[strlen(line) - 1] == '\n') {
                         line[strlen(line) - 1] = '\0';
                 }
-                
+
                 if (strcmp(line, section) == 0) {
                         return true;
                 }
@@ -166,7 +171,7 @@ static _u32 _database_save_section(Database *obj, const char *path_bin)
                 }
         }
         malelf_binary_close(&bin);
-        
+
         return MALELF_SUCCESS;
 }
 
@@ -184,7 +189,7 @@ static _u32 _database_load_binaries(Database *obj)
                 return MALELF_ERROR;
         }
 
-        obj->fp = fopen(obj->database, "w+");
+        obj->fp = fopen(obj->database, "a+");
         if (NULL == obj->fp) {
                 return MALELF_ERROR;
         }
@@ -195,17 +200,19 @@ static _u32 _database_load_binaries(Database *obj)
         }
 
         while ((dp = readdir(dir))) {
-                 if ((0 == strncmp(dp->d_name, ".", 1)) || 
+                 if ((0 == strncmp(dp->d_name, ".", 1)) ||
                      (0 == strncmp(dp->d_name, "..", 2))) {
                          continue;
                  }
-                 char *path = malloc(strlen(dp->d_name) + strlen(obj->directory) + 2);
-                 memset(path, '\0', strlen(path) + 1);
-                 strncpy(path, obj->directory, strlen(obj->directory)+1);
+                 int pathlen = strlen(dp->d_name) + strlen(obj->directory) + 2;
+                 char *path = malloc(pathlen);
+                 memset(path, '\0', pathlen);
+                 strncpy(path, obj->directory, strlen(obj->directory));
                  strncat(path, dp->d_name, strlen(dp->d_name));
-              
-                 status = _database_save_section(obj, path); 
+
+                 status = _database_save_section(obj, path);
                  if (MALELF_SUCCESS != status) {
+                         free(path);
                          if (MALELF_ERROR == status) {
                                  return MALELF_ERROR;
                          } else {
@@ -213,7 +220,7 @@ static _u32 _database_load_binaries(Database *obj)
                          }
                          return status;
                  }
-                 free(path); 
+                 free(path);
         }
         closedir(dir);
 
@@ -244,7 +251,7 @@ static _u32 _database(Database *obj)
                 return MALELF_ERROR;
         }
 
-        
+
         result = _database_load_binaries(obj);
 
         return result;

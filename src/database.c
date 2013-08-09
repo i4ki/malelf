@@ -266,7 +266,7 @@ static _u32 _database_options(Database *obj, int argc, char **argv)
                 {"help", 0, 0, DATABASE_HELP},
                 {"input", 1, 0, DATABASE_INPUT},
                 {"output", 1, 0, DATABASE_OUTPUT},
-                {"sections", 1, 0, DATABASE_SECTION},
+                {"sections", 0, 0, DATABASE_SECTION},
                 {0, 0, 0, 0}
         };
 

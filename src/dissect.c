@@ -369,9 +369,9 @@ static _u32 _malelf_dissect_table_phdr()
         unsigned int i;
         _u32 error;
 
-        char *headers[] = {"N", "Offset", NULL};
+        char *headers[] = {"N", "Offset", "VAddr", "PAddr", "Filesz", "Memsz", "Align", NULL};
 
-        if (MALELF_SUCCESS != malelf_table_init(&table, 60, 9, 2)) {
+        if (MALELF_SUCCESS != malelf_table_init(&table, 77, 9, 7)) {
                 return MALELF_ERROR;
         }
         malelf_table_set_title(&table, "Program Header Table (PHT)");
@@ -385,6 +385,16 @@ static _u32 _malelf_dissect_table_phdr()
                 malelf_table_add_int_value(&table, i);
                 MALELF_CHECK(malelf_phdr_get_offset, &phdr, &value, i);
                 malelf_table_add_hex_value(&table, value);
+                MALELF_CHECK(malelf_phdr_get_vaddr, &phdr, &value, i);
+                malelf_table_add_hex_value(&table, value);
+                MALELF_CHECK(malelf_phdr_get_paddr, &phdr, &value, i);
+                malelf_table_add_hex_value(&table, value);
+                MALELF_CHECK(malelf_phdr_get_filesz, &phdr, &value, i);
+                malelf_table_add_int_value(&table, value);
+                MALELF_CHECK(malelf_phdr_get_memsz, &phdr, &value, i);
+                malelf_table_add_int_value(&table, value);
+                MALELF_CHECK(malelf_phdr_get_align, &phdr, &value, i);
+                malelf_table_add_int_value(&table, value);
         }
 
         malelf_table_print(&table);

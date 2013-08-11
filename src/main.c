@@ -71,6 +71,7 @@ int main(int argc, char **argv)
         Disas disas;
         Database database;
         Analyse analyse;
+        _u8 error = MALELF_SUCCESS;
 
         if (argc == 1) {
                 _malelf_help();
@@ -78,7 +79,7 @@ int main(int argc, char **argv)
         }
 
         if (strncmp(argv[1], DISSECT, sizeof(DISSECT)) == 0) {
-                malelf_dissect_init(&dissect, argc, argv);
+                error = malelf_dissect_init(&dissect, argc, argv);
                 malelf_dissect_finish(&dissect);
         } else if (strncmp(argv[1],
                            SHELLCODE,
@@ -102,6 +103,11 @@ int main(int argc, char **argv)
                 analyse_finish(&analyse);
         } else {
                 _malelf_help();
+        }
+
+        if (MALELF_SUCCESS != error) {
+                MALELF_PERROR(error);
+                return error;
         }
 
         return 0;

@@ -29,6 +29,7 @@
 
 #include <malelf/error.h>
 
+#include <config.h>
 #include "dissect.h"
 #include "shellcode.h"
 #include "util.h"
@@ -37,6 +38,8 @@
 #include "analyse.h"
 #include "infect.h"
 #include "dynamic_analysis.h"
+
+#define MALELFICUS_URL "https://github.com/SecPlus/malelf"
 
 #define DISSECT          "dissect"
 #define SHELLCODE        "shellcode"
@@ -62,6 +65,11 @@ static void _malelf_help()
         HELP("         analyse \tAnalyse ELF binary info in a database.\n");
         HELP("\n");
         exit(MALELF_SUCCESS);
+}
+
+void show_version(char *prog_name)
+{
+        printf("%s version %s (%s)\n", prog_name, VERSION, MALELFICUS_URL);
 }
 
 int main(int argc, char **argv)
@@ -101,6 +109,9 @@ int main(int argc, char **argv)
         } else if (strncmp(argv[1], ANALYSE, sizeof(ANALYSE)) == 0) {
                 analyse_init(&analyse, argc, argv);
                 analyse_finish(&analyse);
+        } else if (strncmp(argv[1], "-v", 2) ||
+                   strncmp(argv[1], "--version", 9)) {
+                show_version(*argv);
         } else {
                 _malelf_help();
         }

@@ -1,10 +1,10 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT([malelf], [1.0], [benatto@secplus.com.br])
+AC_INIT([malelf], [1.0.0], [benatto@secplus.com.br])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/main.c])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([src/config.h])
 
 AC_ARG_WITH([libmalelf-prefix],
 	[AS_HELP_STRING([--with-libmalelf-prefix],
@@ -45,10 +45,10 @@ fi
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
-AC_CHECK_FUNCS([     strdup \
-                     fopen \
-                     open \
-                     malloc \
+AC_CHECK_FUNCS([     strdup     \
+                     fopen      \
+                     open       \
+                     malloc     \
                      mmap])
 
 AC_OUTPUT([Makefile src/Makefile])

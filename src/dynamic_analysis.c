@@ -35,7 +35,7 @@
 #include <malelf/error.h>
 #include <malelf/util.h>
 
-#include "config.h"
+#include "dynanalyse_config.h"
 #include "ioctls.h"
 #include "messages.h"
 

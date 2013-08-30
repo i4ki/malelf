@@ -472,8 +472,7 @@ static _u32 _malelf_dissect(MalelfDissect *obj)
             malelf_report_open(&report, obj->fname, MALELF_OUTPUT_XML);
             _malelf_dissect_report(obj, MALELF_OUTPUT_XML);
         } else {
-                _malelf_dissect_report(obj, MALELF_OUTPUT_TEXT);
-                return MALELF_SUCCESS;
+                return _malelf_dissect_report(obj, MALELF_OUTPUT_TEXT);
         }
 
         return MALELF_SUCCESS;

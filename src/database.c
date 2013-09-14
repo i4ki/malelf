@@ -26,6 +26,7 @@ void _database_list()
 {
         printf("Available database generator options:\n");
         printf("\t-s/--sections\t\tCreate a sections database\n");
+        printf("\t-e/--entry\t\tCreate a entrypoint to sections map database\n");
 }
 
 _u32 _database_set_binary_directory(Database *obj, char *directory)
@@ -107,6 +108,9 @@ static _u32 _database_handle_options(Database *obj, int option)
         case DATABASE_SECTION:
                 database_option = DATABASE_SECTION;
                 break;
+        case DATABASE_ENTRY:
+                database_option = DATABASE_ENTRY;
+                break;
         case DATABASE_LIST:
                 _database_list();
                 exit(0);
@@ -123,7 +127,7 @@ static _u32 _database_handle_options(Database *obj, int option)
         return error;
 }
 
-static bool _database_search_section(Database *obj, const char *section) {
+static bool _database_search_line(Database *obj, const char *needle) {
         char line[256] = {0};
 
         if (NULL == obj) {
@@ -134,7 +138,7 @@ static bool _database_search_section(Database *obj, const char *section) {
                 return MALELF_ERROR;
         }
 
-        if (NULL == section) {
+        if (NULL == needle) {
                 return MALELF_ERROR;
         }
 
@@ -150,7 +154,7 @@ static bool _database_search_section(Database *obj, const char *section) {
                         line[strlen(line) - 1] = '\0';
                 }
 
-                if (strcmp(line, section) == 0) {
+                if (strcmp(line, needle) == 0) {
                         return true;
                 }
         }
@@ -187,7 +191,7 @@ static _u32 _database_save_section(Database *obj, const char *path_bin)
                         return error;
                 }
 
-                if (false == _database_search_section(obj, name)) {
+                if (false == _database_search_line(obj, name)) {
                         fprintf(obj->fp, "%s\n", name);
                 }
         }
@@ -196,11 +200,76 @@ static _u32 _database_save_section(Database *obj, const char *path_bin)
         return MALELF_SUCCESS;
 }
 
+static _u32 _database_save_entry_section(Database *obj, const char *path_bin)
+{
+        MalelfBinary bin;
+        int error;
+        int i;
+        _u32 entry;
+        _u32 type;
+
+        if (NULL == obj) {
+                return MALELF_ERROR;
+        }
+
+        if (NULL == path_bin) {
+                return MALELF_ERROR;
+        }
+
+        malelf_binary_init(&bin);
+        error = malelf_binary_open(&bin, (char*)path_bin);
+        if (MALELF_SUCCESS != error) {
+                goto save_entry_exit;
+        }
+
+        type = MALELF_ELF_FIELD(&bin.ehdr, e_type, error);
+        if (MALELF_SUCCESS != error) {
+                goto save_entry_exit;
+        }
+
+        if (type != ET_EXEC) {
+                goto save_entry_exit;
+        }
+
+        entry = MALELF_ELF_FIELD(&bin.ehdr, e_entry, error);
+        if (MALELF_SUCCESS != error) {
+                goto save_entry_exit;
+        }
+
+        for (i = 1; i < MALELF_ELF_FIELD(&bin.ehdr, e_shnum, error); i++) {
+                MalelfSection section;
+                error = malelf_binary_get_section(&bin, i, &section);
+                if (MALELF_SUCCESS != error) {
+                        goto save_entry_exit;
+                }
+
+                if (entry >= section.addr && entry < (section.addr + section.size)) {
+                        /* entry point is inside this section */
+                        char linebuff[512];
+                        snprintf(linebuff, 512,
+                                 "%u,%u,%s",
+                                 (entry - section.addr),
+                                 (section.addr + section.size) - entry,
+                                 section.name);
+                        if (false == _database_search_line(obj,
+                                                           linebuff)) {
+                                fprintf(obj->fp, "%s\n", linebuff);
+                        }
+                }
+        }
+
+        error = MALELF_SUCCESS;
+save_entry_exit:
+        malelf_binary_close(&bin);
+
+        return error;
+}
+
 static _u32 _database_load_binaries(Database *obj)
 {
         DIR *dir = NULL;
         struct dirent *dp = NULL;
-        unsigned int status;
+        unsigned int status = MALELF_SUCCESS;;
 
         if (NULL == obj) {
                 return MALELF_ERROR;
@@ -210,9 +279,13 @@ static _u32 _database_load_binaries(Database *obj)
                 return MALELF_ERROR;
         }
 
-        obj->fp = fopen(obj->database, "a+");
-        if (NULL == obj->fp) {
-                return MALELF_ERROR;
+        if (NULL == obj->database) {
+                obj->fp = stdout;
+        } else {
+                obj->fp = fopen(obj->database, "a+");
+                if (NULL == obj->fp) {
+                        return MALELF_ERROR;
+                }
         }
 
         dir = opendir(obj->directory);
@@ -231,7 +304,12 @@ static _u32 _database_load_binaries(Database *obj)
                  strncpy(path, obj->directory, strlen(obj->directory));
                  strncat(path, dp->d_name, strlen(dp->d_name));
 
-                 status = _database_save_section(obj, path);
+                 if (database_option == DATABASE_SECTION) {
+                         status = _database_save_section(obj, path);
+                 } else if (database_option == DATABASE_ENTRY) {
+                         status = _database_save_entry_section(obj, path);
+                 }
+
                  if (MALELF_SUCCESS != status) {
                          free(path);
                          if (MALELF_ERROR == status) {
@@ -288,6 +366,7 @@ static _u32 _database_options(Database *obj, int argc, char **argv)
                 {"input", 1, 0, DATABASE_INPUT},
                 {"output", 1, 0, DATABASE_OUTPUT},
                 {"sections", 0, 0, DATABASE_SECTION},
+                {"entry", 0, 0, DATABASE_ENTRY},
                 {"list", 0, 0, DATABASE_LIST},
                 {0, 0, 0, 0}
         };
@@ -297,7 +376,7 @@ static _u32 _database_options(Database *obj, int argc, char **argv)
                 return MALELF_ERROR;
         }
 
-        while ((option = getopt_long (argc, argv, "hlso:i:",
+        while ((option = getopt_long (argc, argv, "hlseo:i:",
                                       long_options, &option_index)) != -1) {
                 error = _database_handle_options(obj, option);
         }
@@ -319,7 +398,7 @@ static _u32 _database_options(Database *obj, int argc, char **argv)
         return error;
 }
 
-void database_help(void)
+void database_help()
 {
         HELP("\n");
         HELP("This command stores information about the ELF binary in a database.\n");
@@ -327,6 +406,8 @@ void database_help(void)
         HELP("         -h, --help     \tDatabase Help\n");
         HELP("         -i, --input    \tBinary Directory\n");
         HELP("         -s, --sections \tStores Binary Sections\n");
+        HELP("         -e, --entry    \tStore sections that commonly has the"
+             " entry point.\n");
         HELP("         -o, --output   \tOutput Database\n");
         HELP("         -l, --list     \tList available database generator options.\n");
         HELP("Example: malelf database -i /bin --sections -o db.txt\n");

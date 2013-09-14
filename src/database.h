@@ -29,6 +29,7 @@
 #define DATABASE_INPUT   'i'
 #define DATABASE_OUTPUT  'o'
 #define DATABASE_SECTION 's'
+#define DATABASE_ENTRY   'e'
 #define DATABASE_LIST    'l'
 #define DATABASE_UNKNOWN '?'
 

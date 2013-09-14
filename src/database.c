@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <dirent.h>
 
-
 /*  Libmalelf */
 #include <malelf/types.h>
 #include <malelf/error.h>
@@ -20,6 +19,13 @@
 #include "util.h"
 #include "database.h"
 
+char database_option = 0;
+
+void _database_list()
+{
+        printf("Available database generator options:\n");
+        printf("\t-s/--sections\t\tCreate a sections database\n");
+}
 
 static _u32 _database_set_binary_directory(Database *obj, char *directory)
 {
@@ -92,6 +98,13 @@ static _u32 _database_handle_options(Database *obj, int option)
         case DATABASE_OUTPUT:
                 error |= _database_set_output(obj, optarg);
                 break;
+        case DATABASE_SECTION:
+                database_option = DATABASE_SECTION;
+                break;
+        case DATABASE_LIST:
+                _database_list();
+                exit(0);
+                break;
         case ':':
                 printf("Unknown option character '%s'.\n", optarg);
                 break;
@@ -105,7 +118,7 @@ static _u32 _database_handle_options(Database *obj, int option)
 }
 
 static bool _database_search_section(Database *obj, const char *section) {
-	char line[256] = {0};
+        char line[256] = {0};
 
         if (NULL == obj) {
                 return MALELF_ERROR;
@@ -178,7 +191,7 @@ static _u32 _database_save_section(Database *obj, const char *path_bin)
 static _u32 _database_load_binaries(Database *obj)
 {
         DIR *dir = NULL;
-	struct dirent *dp = NULL;
+        struct dirent *dp = NULL;
         unsigned int status;
 
         if (NULL == obj) {
@@ -267,6 +280,7 @@ static _u32 _database_options(Database *obj, int argc, char **argv)
                 {"input", 1, 0, DATABASE_INPUT},
                 {"output", 1, 0, DATABASE_OUTPUT},
                 {"sections", 0, 0, DATABASE_SECTION},
+                {"list", 0, 0, DATABASE_LIST},
                 {0, 0, 0, 0}
         };
 
@@ -275,9 +289,16 @@ static _u32 _database_options(Database *obj, int argc, char **argv)
                 return MALELF_ERROR;
         }
 
-        while ((option = getopt_long (argc, argv, "hso:i:",
+        while ((option = getopt_long (argc, argv, "hlso:i:",
                                       long_options, &option_index)) != -1) {
                 error = _database_handle_options(obj, option);
+        }
+
+        if (!database_option) {
+                fprintf(stderr, "Invalid database option. "
+                        "Use malelf database -l"
+                        " to list available database options.\n");
+                error = MALELF_ERROR;
         }
 
         if (MALELF_SUCCESS == error ) {
@@ -299,7 +320,8 @@ void database_help(void)
         HELP("         -i, --input    \tBinary Directory\n");
         HELP("         -s, --sections \tStores Binary Sections\n");
         HELP("         -o, --output   \tOutput Database\n");
-        HELP("Example: malelf database -i /bin --sections .text -o db.txt\n");
+        HELP("         -l, --list     \tList available database generator options.\n");
+        HELP("Example: malelf database -i /bin --sections -o db.txt\n");
         HELP("\n");
         exit(MALELF_SUCCESS);
 }

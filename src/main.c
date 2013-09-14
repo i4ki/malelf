@@ -117,7 +117,10 @@ int main(int argc, char **argv)
         }
 
         if (MALELF_SUCCESS != error) {
-                MALELF_PERROR(error);
+                if (MALELF_ERROR != error) {
+                        MALELF_PERROR(error);
+                }
+
                 return error;
         }
 

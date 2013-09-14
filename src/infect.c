@@ -237,7 +237,7 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                                                   &obj->offset_ret);
                 if (MALELF_SUCCESS != result) {
                         MALELF_LOG_WARN("malelficus doesn't found the "
-                                          "magic bytes 0x%08x in '%s'",
+                                          "magic bytes 0x%08x in '%s'\n",
                                           magic_bytes.long_val,
                                           malware.fname);
                         MALELF_LOG_WARN("You can use -b/--magic-bytes to "
@@ -245,12 +245,13 @@ _u32 _malelf_infect_cesare(MalelfInfect *obj)
                                         "malware or use -f/--offset-ret "
                                         "to specify the exact offset in "
                                         "malware where malelf could "
-                                        "overwrite with host entry point."
+                                        "overwrite with host entry point.\n"
                                 );
+                        goto cesare_error;
 
                 }
 
-                MALELF_LOG_SUCCESS("Found at '0x%04x\n", obj->offset_ret);
+                MALELF_LOG_SUCCESS("Found at '0x%04x'\n", obj->offset_ret);
 
                 result = malelf_infect_silvio_padding(&input,
                                                       &output,

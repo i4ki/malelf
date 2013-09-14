@@ -148,6 +148,7 @@ static _u32 _malelf_dissect_set_output_file(MalelfDissect *obj, char *fname)
 
 static _u32 _malelf_dissect_set_binary_file(MalelfDissect *obj, char *fname)
 {
+        _u32 result;
         if (NULL == obj) {
                 return MALELF_ERROR;
         }
@@ -158,8 +159,11 @@ static _u32 _malelf_dissect_set_binary_file(MalelfDissect *obj, char *fname)
 
         obj->binary = strdup(fname);
         malelf_binary_init(&binary);
-        if (MALELF_SUCCESS != malelf_binary_open(&binary, fname)) {
-                return MALELF_ERROR;
+        result = malelf_binary_open(&binary, fname);
+
+        if (MALELF_SUCCESS != result) {
+                malelf_binary_close(&binary);
+                return result;
         }
 
         return MALELF_SUCCESS;
@@ -503,12 +507,16 @@ static _u32 _malelf_dissect_options(MalelfDissect *obj, int argc, char **argv)
         while ((option = getopt_long (argc, argv, "ho:f:epsi:S",
                                       long_options, &option_index)) != -1) {
                 error = _malelf_dissect_handle_options(obj, option);
+                if (MALELF_SUCCESS != error) {
+                        break;
+                }
         }
 
         if (MALELF_SUCCESS == error ) {
                 error = _malelf_dissect(obj);
         } else {
                 printf("Invalid arguments...\n");
+                MALELF_PERROR(error);
                 malelf_dissect_help();
         }
 

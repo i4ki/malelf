@@ -249,7 +249,7 @@ static _u32 _database_save_entry_section(Database *obj, const char *path_bin)
                         snprintf(linebuff, 512,
                                  "%u,%u,%s",
                                  (entry - section.addr),
-                                 (section.addr + section.size) - entry,
+                                 section.size,
                                  section.name);
                         if (false == _database_search_line(obj,
                                                            linebuff)) {

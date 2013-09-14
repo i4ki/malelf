@@ -29,6 +29,7 @@
 #define ANALYSE_INPUT    'i'
 #define ANALYSE_DATABASE 'd'
 #define ANALYSE_SECTION  's'
+#define ANALYSE_ENTRY    'e'
 #define ANALYSE_LIST     'l'
 #define ANALYSE_UNKNOWN  '?'
 

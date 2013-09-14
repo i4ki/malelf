@@ -4,6 +4,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <string.h>
+#include <strings.h>
 #include <elf.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -27,7 +28,7 @@ void _database_list()
         printf("\t-s/--sections\t\tCreate a sections database\n");
 }
 
-static _u32 _database_set_binary_directory(Database *obj, char *directory)
+_u32 _database_set_binary_directory(Database *obj, char *directory)
 {
         char *new_dir = NULL;
 
@@ -39,18 +40,23 @@ static _u32 _database_set_binary_directory(Database *obj, char *directory)
                 return MALELF_ERROR;
         }
 
+        if (obj->directory) {
+                free(obj->directory);
+        }
+
         /* Fixing problem "/" in the end.
          * Example: /bin is diferent /bin/
          */
         if (directory[strlen(directory) - 1] != '/' ) {
-            new_dir = (char *) malloc(strlen(directory) + 2);
+            new_dir = malloc(strlen(directory) + 2);
             if (NULL == new_dir) {
                     return MALELF_EALLOC;
             }
             memset(new_dir, '\0', strlen(directory) + 2);
 
             strncpy(new_dir, directory, strlen(directory));
-            strncat(new_dir, "/", 1);
+            strcat(new_dir, "/");
+
             obj->directory = strdup(new_dir);
             free(new_dir);
         } else {
@@ -170,12 +176,14 @@ static _u32 _database_save_section(Database *obj, const char *path_bin)
         malelf_binary_init(&bin);
         error = malelf_binary_open(&bin, (char*)path_bin);
         if (MALELF_SUCCESS != error) {
-            return error;
+                malelf_binary_close(&bin);
+                return error;
         }
 
         for (i = 1; i < MALELF_ELF_FIELD(&bin.ehdr, e_shnum, error); i++) {
                 error = malelf_binary_get_section_name(&bin, i, &name);
                 if (MALELF_SUCCESS != error) {
+                        malelf_binary_close(&bin);
                         return error;
                 }
 

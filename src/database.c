@@ -265,7 +265,8 @@ save_entry_exit:
         return error;
 }
 
-static _u32 _database_load_binaries(Database *obj)
+static _u32 _database_load_binaries(Database *obj,
+                                    _u32 (*callback)(Database *, const char *))
 {
         DIR *dir = NULL;
         struct dirent *dp = NULL;
@@ -304,11 +305,7 @@ static _u32 _database_load_binaries(Database *obj)
                  strncpy(path, obj->directory, strlen(obj->directory));
                  strncat(path, dp->d_name, strlen(dp->d_name));
 
-                 if (database_option == DATABASE_SECTION) {
-                         status = _database_save_section(obj, path);
-                 } else if (database_option == DATABASE_ENTRY) {
-                         status = _database_save_entry_section(obj, path);
-                 }
+                 status = callback(obj, path);
 
                  if (MALELF_SUCCESS != status) {
                          free(path);
@@ -317,7 +314,6 @@ static _u32 _database_load_binaries(Database *obj)
                          } else {
                                  continue;
                          }
-                         return status;
                  }
                  free(path);
         }
@@ -351,7 +347,17 @@ static _u32 _database(Database *obj)
         }
 
 
-        result = _database_load_binaries(obj);
+        switch (database_option) {
+        case DATABASE_SECTION:
+                result = _database_load_binaries(obj, _database_save_section);
+                break;
+        case DATABASE_ENTRY:
+                result = _database_load_binaries(obj, _database_save_entry_section);
+                break;
+        default:
+                printf("Unknown database option.\n");
+                result = MALELF_ERROR;
+        }
 
         return result;
 }

@@ -1,0 +1,113 @@
+Malelficus architecure
+======================
+
+Introduction
+=============
+
+
+Libmalelf
+=============
+
+
+Malelf
+============
+
+   INPUT               Process         OUTPUT
++------------+      +----------+ ---> terminal table
+| ELF binary | ---> |  Dissect | ---> xml
++------------+      +----------+ ---> json
+
+   INPUT               Process         OUTPUT
++------------+      +----------+      +---------+
+|  xml/json  | ---> | Database | ---> | MongoDB |
++------------+      +----------+      +---------+
+
+   INPUT               Process         OUTPUT
++------------+      +----------+ ---> terminal table
+|  MongoDB   | ---> | Analyse  | ---> xml
++------------+      +----------+ ---> json
+
+MongoDB Bson information
+
+Binary: {
+        fname: "/bin/ls",
+        ehdr: {
+              ident: "\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+              type: {
+                    name: "ET_EXEC",
+                    value: 2,
+                    meaning: "Executable file"
+              },
+              machine: {
+                    name: "EM_386",
+                    value: 3,
+                    meaning: "Intel 80386"
+              },
+              version: {
+                    name: "EV_CURRENT",
+                    value: 1,
+                    meaning: "Current Version"
+              },
+              entry: 134529460, /* entrypoint in base10 */
+              phoff: 52,
+              shoff: 111580,
+              flags: 0,
+              ehsize: 52,
+              phentsize: 32,
+              phnum: 9,
+              shentsize: 40,
+              shnum: 28,
+              shstrndx: 27
+        },
+        phdr: [{
+              type: {
+                    name: "PT_PHDR",
+                    value: 6,
+                    meaning: "Entry for header table itself"
+              },
+              offset: 52,
+              vaddr: 134512692, /* vaddr in base10 */
+              paddr: 134512692, /* paddr in base10 */
+              filesz: 288,
+              memsz: 288,
+              flags: 2532,
+              align: 4
+        },
+        {
+                /* and so on */
+        }],
+}
+
+
+
+
+Analyse techniques
+
+Ehdr:
+        * entry point
+          Must reside inside the beginning of .text section
+        * Ehsize is always 52 bytes
+        * Phoff is always 52 bytes from the beginning
+        * Phentsize is always 32 bytes
+        * Shentsize is always 40 bytes
+
+Phdr:
+
+Shdr:
+
+Sections/Segments mapping:
+        * .note-ABI-tag has few specific compiler values (no machine code)
+        * .note.gnu.build-id (need recognize this)
+                  .note.* sections must be inside a PT_NOTE segment type
+
+        * .interp has the path of the dynamic loader (/lib/ld-linux.so, etc)
+                  Must be within PT_INTERP segment type
+        * .gnu.version and .gnu.version_r contains symbol version definitions.
+          see more: http://refspecs.linuxfoundation.org/LSB_3.2.0/LSB-Core-generic/LSB-Core-generic/symversion.html
+        * .init_array, .fini_array, .jcr (I guess that holds initialization code for program),
+          .dynamic, .got MUST be inside the PT_GNU_RELRO segment type
+        * .eh_frame_hdr
+                  Must be within the PT_GNU_EH_FRAME segment type
+
+Sections analysis:
+         * Must contains function's padding align codes.

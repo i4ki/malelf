@@ -25,19 +25,28 @@
 /*
  * Analyse Options
  */
-#define ANALYSE_HELP     'h'
-#define ANALYSE_INPUT    'i'
-#define ANALYSE_DATABASE 'd'
-#define ANALYSE_SECTION  's'
-#define ANALYSE_ENTRY    'e'
-#define ANALYSE_LIST     'l'
-#define ANALYSE_UNKNOWN  '?'
+#define ANALYSE_HELP             'h'
+#define ANALYSE_INPUT            'i'
+#define ANALYSE_DATABASE         'd'
+#define ANALYSE_DATABASE_DIR     'r'
+#define ANALYSE_SECTION          's'
+#define ANALYSE_ENTRY            'e'
+#define ANALYSE_ALL              'a'
+#define ANALYSE_LIST             'l'
+#define ANALYSE_UNKNOWN          '?'
+
+#define DB_SECTION_NAME "sections.db"
+#define DB_ENTRY_SECTION_NAME "entry_sections.db"
+#define DB_ENTRY_SECTION_OFFSETS_NAME "entry_off.db"
 
 /* Store info about dissect */
 typedef struct  {
         char *filename;
-        char *database;   /* Binary (Input) Directory */
+        char *database;    /* Binary (Input) Directory */
+        char *db_dir;      /* database directory */
         FILE *fp;          /* FILE Pointer */
+        FILE *fp_section;
+        FILE *fp_eoffsets;
 } Analyse;
 
 

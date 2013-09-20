@@ -111,3 +111,4 @@ Sections/Segments mapping:
 
 Sections analysis:
          * Must contains function's padding align codes.
+           see: http://repo.or.cz/w/binutils.git/blob/HEAD:/gas/config/tc-i386.c#l868

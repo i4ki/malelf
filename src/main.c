@@ -107,7 +107,7 @@ int main(int argc, char **argv)
                 database_init(&database, argc, argv);
                 database_finish(&database);
         } else if (strncmp(argv[1], ANALYSE, sizeof(ANALYSE)) == 0) {
-                analyse_init(&analyse, argc, argv);
+                error = analyse_init(&analyse, argc, argv);
                 analyse_finish(&analyse);
         } else if (strncmp(argv[1], "-v", 2) ||
                    strncmp(argv[1], "--version", 9)) {

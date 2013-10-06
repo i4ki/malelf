@@ -1,6 +1,17 @@
         BITS 32
         %include "util.inc.asm"
 
+malware:
+        ;; save loader registers
+        push    eax
+        push    ebx
+        push    ecx
+        push    edx
+        push    esi
+        push    edi
+
+        prologue
+
         call get_msg
 db         "OWNED BY I4K",0x0a
 msg:
@@ -19,3 +30,11 @@ msg:
 
 get_msg:        jmp msg
 exit:
+        ;; restore registers
+        epilogue
+        pop     edi
+        pop     esi
+        pop     edx
+        pop     ecx
+        pop     ebx
+        pop     eax

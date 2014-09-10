@@ -51,4 +51,4 @@ AC_CHECK_FUNCS([     strdup     \
                      malloc     \
                      mmap])
 
-AC_OUTPUT([Makefile src/Makefile])
+AC_OUTPUT([Makefile src/Makefile doc/Makefile])

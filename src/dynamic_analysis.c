@@ -46,6 +46,8 @@
 #define D_SINK   3
 #define NOSINK   0x0DEFACED
 
+#define PATH_MAX        4096    /* # chars in a path name including nul */
+
 #define CRET_NONE	  0
 #define CRET_ACCEPT	  1
 #define CRET_RECVFROM 2
@@ -288,6 +290,7 @@ reread_input:
         case '1':
                 malelf_print(outfd,"1 (abort)\n");
                 fatal_exit("Program terminated");
+                break;
 
         case '2':
                 malelf_print(outfd,"2 (permit)\n");
@@ -359,7 +362,7 @@ reread_input:
         case '1':
                 malelf_print(outfd,"1 (abort)\n");
                 fatal_exit("Program terminated");
-
+                break;
         case '2':
                 malelf_print(outfd,"2 (child)\n");
                 sink_syscall = 1; syscall_result = 0;
@@ -1777,6 +1780,7 @@ static void soup_nazi(_u32 sysnum, struct user_regs_struct* r) {
 
         case SYS_CREAT:
                 r->ecx = O_RDWR;
+                /* fall through */
         case SYS_OPEN:
                 handle_open(r);
                 break;

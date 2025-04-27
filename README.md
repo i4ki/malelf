@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/i4ki/malelf/actions/workflows/ci.yml/badge.svg)](https://github.com/i4ki/malelf/actions/workflows/ci.yml)
+
 malelf
 ======
 
@@ -34,10 +36,11 @@ The tool is written in pure C, so the build process is very simple.
 
 First, get the source:
 
-    $ git clone https://github.com/SecPlus/malelf.git
+    $ git clone https://github.com/i4ki/malelf.git
 
 Then build:
 
+	$ ./autogen.sh
     $ ./configure --prefix=/usr
     $ make
 

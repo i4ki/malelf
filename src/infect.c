@@ -35,6 +35,7 @@
 
 #include "util.h"
 #include "infect.h"
+#include "globals.h"
 
 #include <malelf/defines.h>
 #include <malelf/error.h>
@@ -49,9 +50,6 @@ char *malelf_techniques[] = {
 };
 
 #define N_TECHNIQUES 1
-
-int g_argc;
-char **g_argv;
 
 void malelf_infect_help()
 {

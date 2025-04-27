@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <limits.h>
 #include <getopt.h>
 #include <unistd.h>
 #include <string.h>
@@ -31,7 +32,8 @@ void _database_list()
 
 _u32 _database_set_binary_directory(Database *obj, char *directory)
 {
-        char *new_dir = NULL;
+        char    lastchar;
+        char    path_buffer[4096];  /* Use a reasonable fixed size */
 
         if (NULL == obj) {
                 return MALELF_ERROR;
@@ -48,18 +50,17 @@ _u32 _database_set_binary_directory(Database *obj, char *directory)
         /* Fixing problem "/" in the end.
          * Example: /bin is diferent /bin/
          */
-        if (directory[strlen(directory) - 1] != '/' ) {
-            new_dir = malloc(strlen(directory) + 2);
-            if (NULL == new_dir) {
-                    return MALELF_EALLOC;
+        lastchar = directory[strlen(directory) - 1];
+        if (lastchar != '/' ) {
+            if (strlen(directory) >= sizeof(path_buffer) - 2) {
+                return MALELF_ERROR;  /* Path too long */
             }
-            memset(new_dir, '\0', strlen(directory) + 2);
-
-            strncpy(new_dir, directory, strlen(directory));
-            strcat(new_dir, "/");
-
-            obj->directory = strdup(new_dir);
-            free(new_dir);
+            
+            strncpy(path_buffer, directory, sizeof(path_buffer) - 1);
+            path_buffer[sizeof(path_buffer) - 1] = '\0';
+            strncat(path_buffer, "/", sizeof(path_buffer) - strlen(path_buffer) - 1);
+            
+            obj->directory = strdup(path_buffer);
         } else {
             obj->directory = strdup(directory);
         }
@@ -302,8 +303,8 @@ static _u32 _database_load_binaries(Database *obj,
                  int pathlen = strlen(dp->d_name) + strlen(obj->directory) + 2;
                  char *path = malloc(pathlen);
                  memset(path, '\0', pathlen);
-                 strncpy(path, obj->directory, strlen(obj->directory));
-                 strncat(path, dp->d_name, strlen(dp->d_name));
+                 strncpy(path, obj->directory, pathlen);
+                 strncat(path, dp->d_name, pathlen);
 
                  status = callback(obj, path);
 

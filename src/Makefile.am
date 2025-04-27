@@ -20,6 +20,7 @@ malelf_SOURCES = 	main.c \
 			disas.c \
 			database.c \
 			analyse.c \
-			dynamic_analysis.c
+			dynamic_analysis.c \
+			globals.c
 
 malelf_LDADD = -lmalelf -ludis86 $(LIBXML2_CFLAGS)

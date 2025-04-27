@@ -45,11 +45,9 @@
 /* Malelf */
 #include "util.h"
 #include "shellcode.h"
+#include "globals.h"
 
 static ShellcodeOptions sh_config;
-
-int g_argc;
-char **g_argv;
 
 const char* malelf_shellcode_formats[] = {
         "binary",
